@@ -18,10 +18,6 @@ export async function GetUserProfile(
 
   const userId = request.userId
 
-  if (!userId) {
-    return await reply.status(401).send({ message: 'Unauthorized' })
-  }
-
   try {
     const getUserProfileUseCase = makeGetUserProfileUseCase()
 

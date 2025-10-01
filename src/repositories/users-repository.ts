@@ -50,5 +50,5 @@ export interface UsersRepository {
   ) => Promise<void>
 
   togglePrivateProfile: (publicId: string) => Promise<void>
-  canViewProfile: (publicId: string, followingId: string) => Promise<boolean>
+  canViewProfile: (publicId: string | undefined, followingId: string) => Promise<boolean>
 }

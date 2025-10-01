@@ -6,7 +6,7 @@ import { ResourceNotFoundError } from '../errors/resource-not-found-error'
 import { UserProfileIsPrivateError } from '../errors/user-profile-is-private-error'
 
 interface GetUserProfileUseCaseRequest {
-  userId: string
+  userId?: string
   publicId: string
 }
 
@@ -25,8 +25,8 @@ export class GetUserProfileUseCase {
       userId,
       publicId
     )
-    
-    if (!canViewProfile) {
+
+    if (!canViewProfile && userId) {
       throw new UserProfileIsPrivateError()
     }
 

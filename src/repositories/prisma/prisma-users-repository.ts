@@ -218,7 +218,10 @@ export class PrismaUsersRepository implements UsersRepository {
       await prisma.follow.delete({ where: { id: existingFollow.id } })
     } else {
       await prisma.follow.create({
-        data: { followerId: follower.publicId, followingId: following.publicId },
+        data: {
+          followerId: follower.publicId,
+          followingId: following.publicId,
+        },
       })
     }
   }
@@ -239,19 +242,26 @@ export class PrismaUsersRepository implements UsersRepository {
     }
   }
 
-  async canViewProfile(profilePublicId: string, viewerPublicId: string) {
-    const [profileUser, viewer] = await Promise.all([
-      prisma.user.findUnique({
-        where: { publicId: profilePublicId },
-        select: { publicId: true, isPrivate: true },
-      }),
-      prisma.user.findUnique({
-        where: { publicId: viewerPublicId },
-        select: { publicId: true },
-      }),
-    ])
-    if (!profileUser || !viewer) return false
-    if (!profileUser.isPrivate) return true
+  async canViewProfile(profilePublicId: string | undefined, viewerPublicId: string) {
+    if (!profilePublicId) return false
+    
+    const profileUser = await prisma.user.findUnique({
+      where: { publicId: profilePublicId },
+      select: { publicId: true, isPrivate: true },
+    })
+
+    if (!profileUser) return false
+
+    if (!profileUser.isPrivate) {
+      return true
+    }
+
+    const viewer = await prisma.user.findUnique({
+      where: { publicId: viewerPublicId },
+      select: { publicId: true },
+    })
+
+    if (!viewer) return false
 
     const follow = await prisma.follow.findUnique({
       where: {
@@ -261,6 +271,7 @@ export class PrismaUsersRepository implements UsersRepository {
         },
       },
     })
+
     return !!follow
   }
 
