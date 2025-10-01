@@ -1,8 +1,192 @@
 import { Prisma, User } from '@prisma/client'
-import { UsersRepository } from '../users-repository'
+import { UserProfileInfo, UsersRepository } from '../users-repository'
 import { prisma } from '../../lib/prisma'
 
 export class PrismaUsersRepository implements UsersRepository {
+  async getUserProfileInfo (publicId: string): Promise<UserProfileInfo | null> {
+    const user = await prisma.user.findUnique({
+      where: { publicId },
+      select: {
+        publicId: true,
+        name: true,
+        role: true,
+        isPrivate: true,
+        createdAt: true,
+        updatedAt: true,
+        followers: { select: { id: true } },
+        following: { select: { id: true } },
+        posts: {
+          select: {
+            publicId: true,
+            content: true,
+            likes: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+        reposts: {
+          select: {
+            publicId: true,
+            createdAt: true,
+            post: {
+              select: {
+                content: true,
+                likes: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            comment: {
+              select: {
+                content: true,
+                likes: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!user) return null
+
+    return {
+      publicId: user.publicId,
+      name: user.name,
+      role: user.role,
+      isPrivate: user.isPrivate,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      postsOrRepostsCount: user.posts.length + user.reposts.length,
+      followersCount: user.followers.length,
+      followingCount: user.following.length,
+      posts: user.posts.map((p) => ({
+        publicId: p.publicId,
+        content: p.content,
+        likes: p.likes,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
+      })),
+      reposts: user.reposts.map((r) => ({
+        publicId: r.publicId,
+        content: r.post?.content ?? null,
+        likes: r.post?.likes ?? 0,
+        createdAt: r.createdAt,
+        updatedAt: r.post?.updatedAt ?? r.createdAt,
+      })),
+    }
+  }
+
+  async listFollowers(publicId: string) {
+    const user = await prisma.user.findUnique({
+      where: { publicId },
+      include: {
+        followers: {
+          include: { follower: true },
+        },
+      },
+    })
+
+    if (!user) return []
+
+    return user.followers.map((f) => ({
+      publicId: f.follower.publicId,
+      name: f.follower.name,
+    }))
+  }
+
+  async listFollowing(publicId: string) {
+    const user = await prisma.user.findUnique({
+      where: { publicId },
+      include: {
+        following: {
+          include: { following: true },
+        },
+      },
+    })
+
+    if (!user) return []
+
+    return user.following.map((f) => ({
+      publicId: f.following.publicId,
+      name: f.following.name,
+    }))
+  }
+
+  async followOrUnfollowUser(
+    followerPublicId: string,
+    followingPublicId: string
+  ): Promise<void> {
+    const follower = await prisma.user.findUnique({
+      where: { publicId: followerPublicId },
+      select: { id: true },
+    })
+    const following = await prisma.user.findUnique({
+      where: { publicId: followingPublicId },
+      select: { id: true },
+    })
+    if (!follower || !following) return
+
+    const existingFollow = await prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: follower.id,
+          followingId: following.id,
+        },
+      },
+    })
+
+    if (existingFollow) {
+      await prisma.follow.delete({ where: { id: existingFollow.id } })
+    } else {
+      await prisma.follow.create({
+        data: { followerId: follower.id, followingId: following.id },
+      })
+    }
+  }
+
+  async togglePrivateProfile(publicId: string) {
+    const user = await prisma.user.findFirst({ where: { publicId } })
+
+    if (user?.isPrivate == true) {
+      await prisma.user.update({
+        where: { publicId },
+        data: { isPrivate: false },
+      })
+    } else {
+      await prisma.user.update({
+        where: { publicId },
+        data: { isPrivate: true },
+      })
+    }
+  }
+
+  async canViewProfile(profilePublicId: string, viewerPublicId: string) {
+    const [profileUser, viewer] = await Promise.all([
+      prisma.user.findUnique({
+        where: { publicId: profilePublicId },
+        select: { id: true, isPrivate: true },
+      }),
+      prisma.user.findUnique({
+        where: { publicId: viewerPublicId },
+        select: { id: true },
+      }),
+    ])
+    if (!profileUser || !viewer) return false
+    if (!profileUser.isPrivate) return true
+
+    const follow = await prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: viewer.id,
+          followingId: profileUser.id,
+        },
+      },
+    })
+    return !!follow
+  }
+
   async setLastLogin(id: number) {
     await prisma.user.update({
       where: {
@@ -22,9 +206,9 @@ export class PrismaUsersRepository implements UsersRepository {
     })
   }
 
-  async update(id: number, data: Prisma.UserUpdateInput) {
+  async update(publicId: string, data: Prisma.UserUpdateInput) {
     const user = await prisma.user.update({
-      where: { id },
+      where: { publicId },
       data,
     })
 

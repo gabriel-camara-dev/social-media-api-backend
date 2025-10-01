@@ -1,11 +1,52 @@
-import { Prisma, User } from "@prisma/client";
+import { Prisma, User, USER_ROLE } from '@prisma/client'
 
+export interface FollowerOrFollowing {
+  publicId: string
+  name: string
+}
+
+export interface UserProfileInfo {
+  publicId: string
+  name: string
+  role: USER_ROLE
+  isPrivate: boolean
+  createdAt: Date
+  updatedAt: Date
+  postsOrRepostsCount: number
+  followersCount: number
+  followingCount: number
+  posts: {
+    publicId: string
+    content: string | null
+    likes: number
+    createdAt: Date
+    updatedAt: Date
+  }[]
+  reposts: {
+    publicId: string
+    content: string | null
+    likes: number
+    createdAt: Date
+    updatedAt: Date
+  }[]
+}
 export interface UsersRepository {
-     create: (data: Prisma.UserCreateInput) => Promise<User>
-     findById: (id: number) => Promise<User | null>
-     findByPublicId: (publicId: string) => Promise<User | null>
-     findByEmail: (email: string) => Promise<User | null>
-     setLastLogin: (id: number) => Promise<void>
-     delete: (id: number) => Promise<void>
-     update: (id: number, data: Prisma.UserUpdateInput) => Promise<User>
+  create: (data: Prisma.UserCreateInput) => Promise<User>
+  findById: (id: number) => Promise<User | null>
+  findByPublicId: (publicId: string) => Promise<User | null>
+  findByEmail: (email: string) => Promise<User | null>
+  setLastLogin: (id: number) => Promise<void>
+  delete: (id: number) => Promise<void>
+  update: (publicId: string, data: Prisma.UserUpdateInput) => Promise<User>
+  getUserProfileInfo: (publicId: string) => Promise<UserProfileInfo | null>
+
+  listFollowers: (publicId: string) => Promise<FollowerOrFollowing[]>
+  listFollowing: (publicId: string) => Promise<FollowerOrFollowing[]>
+  followOrUnfollowUser: (
+    followerId: string,
+    followingId: string
+  ) => Promise<void>
+
+  togglePrivateProfile: (publicId: string) => Promise<void>
+  canViewProfile: (publicId: string, followingId: string) => Promise<boolean>
 }
