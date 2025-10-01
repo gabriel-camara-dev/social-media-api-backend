@@ -72,8 +72,8 @@ model Posts {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  userId String  @map("user_id")
-  author User @relation(fields: [userId], references: [publicId], onDelete: Cascade)
+  userId String @map("user_id")
+  author User   @relation(fields: [userId], references: [publicId], onDelete: Cascade)
 
   comments Comment[]
   reposts  Repost[]
@@ -89,13 +89,13 @@ model Comment {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  authorId String  @map("author_id")
-  author   User @relation(fields: [authorId], references: [publicId], onDelete: Cascade)
+  authorId String @map("author_id")
+  author   User   @relation(fields: [authorId], references: [publicId], onDelete: Cascade)
 
-  postId String  @map("post_id")
-  post   Posts @relation(fields: [postId], references: [publicId], onDelete: Cascade)
+  postId String @map("post_id")
+  post   Posts  @relation(fields: [postId], references: [publicId], onDelete: Cascade)
 
-  parentId String?      @map("parent_id")
+  parentId String?   @map("parent_id")
   parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [publicId], onDelete: Cascade)
   replies  Comment[] @relation("CommentReplies")
 
@@ -109,14 +109,14 @@ model Repost {
   publicId  String   @unique @default(uuid()) @map("public_id")
   createdAt DateTime @default(now()) @map("created_at")
 
-  postId Int?   @map("post_id")
-  post   Posts? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String?   @map("post_id")
+  post   Posts? @relation(fields: [postId], references: [publicId], onDelete: Cascade)
 
-  userId Int  @map("user_id")
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String  @map("user_id")
+  user   User @relation(fields: [userId], references: [publicId], onDelete: Cascade)
 
-  commentId Int?     @map("comment_id")
-  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String?     @map("comment_id")
+  comment   Comment? @relation(fields: [commentId], references: [publicId], onDelete: Cascade)
 
   @@map("reposts")
 }
@@ -124,11 +124,11 @@ model Repost {
 model Follow {
   id Int @id @default(autoincrement())
 
-  followerId Int
-  follower   User @relation("UserFollowingRelation", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId String
+  follower   User   @relation("UserFollowingRelation", fields: [followerId], references: [publicId], onDelete: Cascade)
 
-  followingId Int
-  following   User @relation("UserFollowersRelation", fields: [followingId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User   @relation("UserFollowersRelation", fields: [followingId], references: [publicId], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
