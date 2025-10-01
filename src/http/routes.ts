@@ -1,7 +1,15 @@
-import { FastifyInstance } from "fastify";
-import { app } from "../app";
-import { userRoutes } from "./controllers/users/user-routes";
+import { FastifyInstance } from 'fastify'
+import { userRoutes } from './controllers/users/user-routes'
+import { postsRoutes } from './controllers/posts/posts-routes'
+import { authenticate } from './controllers/users/authenticate'
+import { refreshToken } from './controllers/users/refresh-token'
+import { logout } from './controllers/users/logout'
 
 export async function appRoutes(app: FastifyInstance) {
-  app.register(userRoutes)
+  app.post('/sessions', authenticate)
+  app.post('/sessions/refresh-token', refreshToken)
+  app.delete('/sessions', logout)
+
+  app.register(userRoutes, { prefix: '/users' })
+  app.register(postsRoutes, { prefix: '/posts' })
 }

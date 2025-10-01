@@ -1,7 +1,7 @@
 import { Repost, Prisma } from '@prisma/client'
 
 export interface RepostRepository {
-  create: (data: Prisma.RepostCreateInput) => Promise<Repost>
+  create: (data: Prisma.RepostUncheckedCreateInput) => Promise<Repost>
   findById: (id: number) => Promise<Repost | null>
   findByPublicId: (publicId: string) => Promise<Repost | null>
   delete: (id: number) => Promise<void>

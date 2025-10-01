@@ -16,14 +16,14 @@ export interface UserProfileInfo {
   followersCount: number
   followingCount: number
   posts: {
-    publicId: string
+    id: string
     content: string | null
     likes: number
     createdAt: Date
     updatedAt: Date
   }[]
   reposts: {
-    publicId: string
+    id: string
     content: string | null
     likes: number
     createdAt: Date

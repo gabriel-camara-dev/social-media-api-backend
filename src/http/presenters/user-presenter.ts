@@ -9,31 +9,6 @@ interface HTTPUser {
   updatedAt: Date
 }
 
-interface HTTPUserProfile {
-  publicId: string
-  name: string
-  role: USER_ROLE
-  isPrivate: boolean
-  createdAt: Date
-  updatedAt: Date
-  postsOrRepostsCount: number
-  followersCount: number
-  followingCount: number
-  posts: {
-    publicId: string
-    content: string | null
-    likes: number
-    createdAt: Date
-    updatedAt: Date
-  }[]
-  reposts: {
-    publicId: string
-    posts: Posts | null
-    createdAt: Date
-    updatedAt: Date
-  }[]
-}
-
 export class UserPresenter {
   static toHTTP(user: User): HTTPUser
   static toHTTP(users: User[]): HTTPUser[]

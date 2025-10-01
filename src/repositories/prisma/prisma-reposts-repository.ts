@@ -20,7 +20,7 @@ export class PrismaRepostRepository implements RepostRepository {
     return repost
   }
 
-  async create(data: Prisma.RepostCreateInput) {
+  async create(data: Prisma.RepostUncheckedCreateInput) {
     const repost = await prisma.repost.create({
       data,
     })

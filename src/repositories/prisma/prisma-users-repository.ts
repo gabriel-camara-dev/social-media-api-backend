@@ -62,14 +62,14 @@ export class PrismaUsersRepository implements UsersRepository {
       followersCount: user.followers.length,
       followingCount: user.following.length,
       posts: user.posts.map((p) => ({
-        publicId: p.publicId,
+        id: p.publicId,
         content: p.content,
         likes: p.likes,
         createdAt: p.createdAt,
         updatedAt: p.updatedAt,
       })),
       reposts: user.reposts.map((r) => ({
-        publicId: r.publicId,
+        id: r.publicId,
         content: r.post?.content ?? null,
         likes: r.post?.likes ?? 0,
         createdAt: r.createdAt,
@@ -137,14 +137,14 @@ export class PrismaUsersRepository implements UsersRepository {
       followersCount: user.followers.length,
       followingCount: user.following.length,
       posts: user.posts.map((p) => ({
-        publicId: p.publicId,
+        id: p.publicId,
         content: p.content,
         likes: p.likes,
         createdAt: p.createdAt,
         updatedAt: p.updatedAt,
       })),
       reposts: user.reposts.map((r) => ({
-        publicId: r.publicId,
+        id: r.publicId,
         content: r.post?.content ?? null,
         likes: r.post?.likes ?? 0,
         createdAt: r.createdAt,
