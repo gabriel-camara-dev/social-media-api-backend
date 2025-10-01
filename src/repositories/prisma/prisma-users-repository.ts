@@ -3,6 +3,81 @@ import { UserProfileInfo, UsersRepository } from '../users-repository'
 import { prisma } from '../../lib/prisma'
 
 export class PrismaUsersRepository implements UsersRepository {
+  async getProfileInfo (userId: number): Promise<UserProfileInfo | null> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        publicId: true,
+        name: true,
+        role: true,
+        isPrivate: true,
+        createdAt: true,
+        updatedAt: true,
+        followers: { select: { id: true } },
+        following: { select: { id: true } },
+        posts: {
+          select: {
+            publicId: true,
+            content: true,
+            likes: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+        reposts: {
+          select: {
+            publicId: true,
+            createdAt: true,
+            post: {
+              select: {
+                content: true,
+                likes: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+            comment: {
+              select: {
+                content: true,
+                likes: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!user) return null
+
+    return {
+      publicId: user.publicId,
+      name: user.name,
+      role: user.role,
+      isPrivate: user.isPrivate,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      postsOrRepostsCount: user.posts.length + user.reposts.length,
+      followersCount: user.followers.length,
+      followingCount: user.following.length,
+      posts: user.posts.map((p) => ({
+        publicId: p.publicId,
+        content: p.content,
+        likes: p.likes,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
+      })),
+      reposts: user.reposts.map((r) => ({
+        publicId: r.publicId,
+        content: r.post?.content ?? null,
+        likes: r.post?.likes ?? 0,
+        createdAt: r.createdAt,
+        updatedAt: r.post?.updatedAt ?? r.createdAt,
+      })),
+    }
+  }
+
   async getUserProfileInfo (publicId: string): Promise<UserProfileInfo | null> {
     const user = await prisma.user.findUnique({
       where: { publicId },

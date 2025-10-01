@@ -39,6 +39,7 @@ export interface UsersRepository {
   delete: (id: number) => Promise<void>
   update: (publicId: string, data: Prisma.UserUpdateInput) => Promise<User>
   getUserProfileInfo: (publicId: string) => Promise<UserProfileInfo | null>
+  getProfileInfo: (userId: number) => Promise<UserProfileInfo | null>
 
   listFollowers: (publicId: string) => Promise<FollowerOrFollowing[]>
   listFollowing: (publicId: string) => Promise<FollowerOrFollowing[]>
