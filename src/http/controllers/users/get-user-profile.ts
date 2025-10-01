@@ -2,6 +2,7 @@ import { type FastifyRequest, type FastifyReply } from 'fastify'
 import { z } from 'zod'
 import { makeGetUserProfileUseCase } from '../../../use-cases/factories/make-get-user-profile-use-case'
 import { ResourceNotFoundError } from '../../../use-cases/errors/resource-not-found-error'
+import { UserProfileIsPrivateError } from '../../../use-cases/errors/user-profile-is-private-error'
 
 export async function GetUserProfile(
   request: FastifyRequest,
@@ -31,7 +32,9 @@ export async function GetUserProfile(
 
     return await reply.status(201).send({ user })
   } catch (err: unknown) {
-    if (err instanceof ResourceNotFoundError) {
+    if (err instanceof UserProfileIsPrivateError) {
+      return await reply.status(403).send({ message: err.message })
+    } else if (err instanceof ResourceNotFoundError) {
       return await reply.status(404).send({ message: err.message })
     }
 
