@@ -18,6 +18,7 @@ model User {
   publicId       String    @unique @default(uuid()) @map("public_id")
   name           String
   email          String    @unique
+  description    String?
   loginAttempts  Int       @default(0) @map("login_attempts")
   lastLogin      DateTime? @map("last_login")
   passwordDigest String    @map("password_digest")
