@@ -26,13 +26,13 @@ model User {
   updatedAt      DateTime  @updatedAt @map("updated_at")
   isPrivate      Boolean   @default(false) @map("is_private")
 
-  followers Follow[] @relation("Followers")
-  following Follow[] @relation("Following")
-
   posts               Posts[]
   comments            Comment[]
   reposts             Repost[]
   AuthenticationAudit AuthenticationAudit[]
+
+  followers Follow[] @relation("UserFollowersRelation")
+  following Follow[] @relation("UserFollowingRelation")
 
   @@index([id])
   @@map("users")
@@ -122,14 +122,15 @@ model Repost {
 }
 
 model Follow {
-  id         Int  @id @default(autoincrement())
-  followerId Int  @map("follower_id")
-  follower   User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  id Int @id @default(autoincrement())
 
-  followingId Int  @map("following_id")
-  following   User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  followerId Int
+  follower   User @relation("UserFollowingRelation", fields: [followerId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now()) @map("created_at")
+  followingId Int
+  following   User @relation("UserFollowersRelation", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 
   @@unique([followerId, followingId])
   @@map("follows")
