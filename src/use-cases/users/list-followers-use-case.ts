@@ -10,7 +10,7 @@ interface ListFollowersUseCaseRequest {
 }
 
 interface ListFollowersUseCaseResponse {
-  user: FollowerOrFollowing[]
+  followers: FollowerOrFollowing[]
 }
 
 export class ListFollowersUseCase {
@@ -19,14 +19,14 @@ export class ListFollowersUseCase {
   async execute({
     publicId,
   }: ListFollowersUseCaseRequest): Promise<ListFollowersUseCaseResponse> {
-    const user = await this.usersRepository.listFollowers(publicId)
+    const followers = await this.usersRepository.listFollowers(publicId)
 
-    if (user === null) {
+    if (followers === null) {
       throw new ResourceNotFoundError()
     }
 
     return {
-      user,
+      followers,
     }
   }
 }

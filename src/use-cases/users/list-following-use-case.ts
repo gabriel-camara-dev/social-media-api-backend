@@ -10,23 +10,23 @@ interface ListFollowingUseCaseRequest {
 }
 
 interface ListFollowingUseCaseResponse {
-  user: FollowerOrFollowing[]
+  following: FollowerOrFollowing[]
 }
 
-export class ListFollowersUseCase {
+export class ListFollowingUseCase {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute({
     publicId,
   }: ListFollowingUseCaseRequest): Promise<ListFollowingUseCaseResponse> {
-    const user = await this.usersRepository.listFollowing(publicId)
+    const following = await this.usersRepository.listFollowing(publicId)
 
-    if (user === null) {
+    if (following === null) {
       throw new ResourceNotFoundError()
     }
 
     return {
-      user,
+      following,
     }
   }
 }
