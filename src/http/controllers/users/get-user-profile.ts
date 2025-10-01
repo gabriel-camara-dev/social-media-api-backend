@@ -15,10 +15,17 @@ export async function GetUserProfile(
 
   const { publicId } = GetUsersProfileParamsSchema
 
+  const userId = request.userId
+
+  if (!userId) {
+    return await reply.status(401).send({ message: 'Unauthorized' })
+  }
+
   try {
     const getUserProfileUseCase = makeGetUserProfileUseCase()
 
     const { user } = await getUserProfileUseCase.execute({
+      userId,
       publicId,
     })
 
