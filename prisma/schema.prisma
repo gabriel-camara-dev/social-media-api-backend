@@ -69,7 +69,6 @@ model Posts {
   title     String
   content   String
   likes     Int      @default(0)
-  published Boolean  @default(false)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
