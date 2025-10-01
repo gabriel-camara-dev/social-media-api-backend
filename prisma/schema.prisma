@@ -24,7 +24,14 @@ model User {
   role           USER_ROLE @default(NORMAL_USER)
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
+  isPrivate      Boolean   @default(false) @map("is_private")
 
+  followers Follow[] @relation("Followers")
+  following Follow[] @relation("Following")
+
+  posts               Posts[]
+  comments            Comment[]
+  reposts             Repost[]
   AuthenticationAudit AuthenticationAudit[]
 
   @@index([id])
@@ -54,4 +61,76 @@ enum AUTHENTICATION_STATUS {
   USER_NOT_EXISTS
   INCORRECT_PASSWORD
   BLOCKED
+}
+
+model Posts {
+  id        Int      @id @default(autoincrement())
+  publicId  String   @unique @default(uuid()) @map("public_id")
+  title     String
+  content   String
+  likes     Int      @default(0)
+  published Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId Int  @map("user_id")
+  author User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  comments Comment[]
+  reposts  Repost[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  publicId  String   @unique @default(uuid()) @map("public_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  authorId Int  @map("author_id")
+  author   User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  postId Int   @map("post_id")
+  post   Posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  parentId Int?      @map("parent_id")
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+
+  reposts Repost[]
+
+  @@map("comments")
+}
+
+model Repost {
+  id        Int      @id @default(autoincrement())
+  publicId  String   @unique @default(uuid()) @map("public_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  postId Int?   @map("post_id")
+  post   Posts? @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  userId Int  @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  commentId Int?     @map("comment_id")
+  comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@map("reposts")
+}
+
+model Follow {
+  id         Int  @id @default(autoincrement())
+  followerId Int  @map("follower_id")
+  follower   User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+
+  followingId Int  @map("following_id")
+  following   User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([followerId, followingId])
+  @@map("follows")
 }
