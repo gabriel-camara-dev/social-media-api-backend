@@ -3,6 +3,7 @@ import { Prisma, User, USER_ROLE } from '@prisma/client'
 export interface FollowerOrFollowing {
   publicId: string
   name: string
+  description: string | null
 }
 
 export interface UserProfileInfo {

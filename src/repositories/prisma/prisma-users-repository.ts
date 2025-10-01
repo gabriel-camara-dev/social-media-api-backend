@@ -3,7 +3,7 @@ import { UserProfileInfo, UsersRepository } from '../users-repository'
 import { prisma } from '../../lib/prisma'
 
 export class PrismaUsersRepository implements UsersRepository {
-  async getProfileInfo (userId: number): Promise<UserProfileInfo | null> {
+  async getProfileInfo(userId: number): Promise<UserProfileInfo | null> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -78,7 +78,7 @@ export class PrismaUsersRepository implements UsersRepository {
     }
   }
 
-  async getUserProfileInfo (publicId: string): Promise<UserProfileInfo | null> {
+  async getUserProfileInfo(publicId: string): Promise<UserProfileInfo | null> {
     const user = await prisma.user.findUnique({
       where: { publicId },
       select: {
@@ -168,6 +168,7 @@ export class PrismaUsersRepository implements UsersRepository {
     return user.followers.map((f) => ({
       publicId: f.follower.publicId,
       name: f.follower.name,
+      description: f.follower.description,
     }))
   }
 
@@ -186,6 +187,7 @@ export class PrismaUsersRepository implements UsersRepository {
     return user.following.map((f) => ({
       publicId: f.following.publicId,
       name: f.following.name,
+      description: f.following.description,
     }))
   }
 
@@ -195,19 +197,19 @@ export class PrismaUsersRepository implements UsersRepository {
   ): Promise<void> {
     const follower = await prisma.user.findUnique({
       where: { publicId: followerPublicId },
-      select: { id: true },
+      select: { publicId: true },
     })
     const following = await prisma.user.findUnique({
       where: { publicId: followingPublicId },
-      select: { id: true },
+      select: { publicId: true },
     })
     if (!follower || !following) return
 
     const existingFollow = await prisma.follow.findUnique({
       where: {
         followerId_followingId: {
-          followerId: follower.id,
-          followingId: following.id,
+          followerId: follower.publicId,
+          followingId: following.publicId,
         },
       },
     })
@@ -216,7 +218,7 @@ export class PrismaUsersRepository implements UsersRepository {
       await prisma.follow.delete({ where: { id: existingFollow.id } })
     } else {
       await prisma.follow.create({
-        data: { followerId: follower.id, followingId: following.id },
+        data: { followerId: follower.publicId, followingId: following.publicId },
       })
     }
   }
@@ -241,11 +243,11 @@ export class PrismaUsersRepository implements UsersRepository {
     const [profileUser, viewer] = await Promise.all([
       prisma.user.findUnique({
         where: { publicId: profilePublicId },
-        select: { id: true, isPrivate: true },
+        select: { publicId: true, isPrivate: true },
       }),
       prisma.user.findUnique({
         where: { publicId: viewerPublicId },
-        select: { id: true },
+        select: { publicId: true },
       }),
     ])
     if (!profileUser || !viewer) return false
@@ -254,8 +256,8 @@ export class PrismaUsersRepository implements UsersRepository {
     const follow = await prisma.follow.findUnique({
       where: {
         followerId_followingId: {
-          followerId: viewer.id,
-          followingId: profileUser.id,
+          followerId: viewer.publicId,
+          followingId: profileUser.publicId,
         },
       },
     })
