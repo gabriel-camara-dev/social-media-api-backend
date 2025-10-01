@@ -1,7 +1,8 @@
-import type { UsersRepository } from '../repositories/users-repository'
+
 import { hash } from 'bcryptjs'
 import type { User, USER_ROLE } from '@prisma/client'
-import { UserWithSameEmailError } from './errors/user-with-same-email-error'
+import { UsersRepository } from '../../repositories/users-repository'
+import { UserWithSameEmailError } from '../errors/user-with-same-email-error'
 
 interface RegisterUseCaseRequest {
   name: string
@@ -31,7 +32,7 @@ export class RegisterUseCase {
     const user = await this.usersRepository.create({
       name,
       email,
-      password_digest: passwordDigest,
+      passwordDigest: passwordDigest,
     })
 
     return {
