@@ -3,12 +3,17 @@ import { Prisma, User, USER_ROLE } from '@prisma/client'
 export interface FollowerOrFollowing {
   publicId: string
   name: string
+  username: string
+  birthDate?: Date
   description: string | null
 }
 
 export interface UserProfileInfo {
   publicId: string
   name: string
+  username: string
+  description: string | null
+  birthDate: Date | null
   role: USER_ROLE
   isPrivate: boolean
   createdAt: Date

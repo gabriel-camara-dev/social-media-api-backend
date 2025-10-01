@@ -9,6 +9,9 @@ export class PrismaUsersRepository implements UsersRepository {
       select: {
         publicId: true,
         name: true,
+        username: true,
+        description: true,
+        birthDate: true,
         role: true,
         isPrivate: true,
         createdAt: true,
@@ -54,6 +57,9 @@ export class PrismaUsersRepository implements UsersRepository {
     return {
       publicId: user.publicId,
       name: user.name,
+      username: user.username,
+      description: user.description,
+      birthDate: user.birthDate,
       role: user.role,
       isPrivate: user.isPrivate,
       createdAt: user.createdAt,
@@ -84,6 +90,9 @@ export class PrismaUsersRepository implements UsersRepository {
       select: {
         publicId: true,
         name: true,
+        username: true,
+        description: true,
+        birthDate: true,
         role: true,
         isPrivate: true,
         createdAt: true,
@@ -129,6 +138,9 @@ export class PrismaUsersRepository implements UsersRepository {
     return {
       publicId: user.publicId,
       name: user.name,
+      username: user.username,
+      description: user.description,
+      birthDate: user.birthDate,
       role: user.role,
       isPrivate: user.isPrivate,
       createdAt: user.createdAt,
@@ -168,6 +180,8 @@ export class PrismaUsersRepository implements UsersRepository {
     return user.followers.map((f) => ({
       publicId: f.follower.publicId,
       name: f.follower.name,
+      username: f.follower.username,
+      birthDate: f.follower.birthDate ?? undefined,
       description: f.follower.description,
     }))
   }
@@ -187,6 +201,8 @@ export class PrismaUsersRepository implements UsersRepository {
     return user.following.map((f) => ({
       publicId: f.following.publicId,
       name: f.following.name,
+      username: f.following.username,
+      birthDate: f.following.birthDate ?? undefined,
       description: f.following.description,
     }))
   }
@@ -242,9 +258,12 @@ export class PrismaUsersRepository implements UsersRepository {
     }
   }
 
-  async canViewProfile(profilePublicId: string | undefined, viewerPublicId: string) {
+  async canViewProfile(
+    profilePublicId: string | undefined,
+    viewerPublicId: string
+  ) {
     if (!profilePublicId) return false
-    
+
     const profileUser = await prisma.user.findUnique({
       where: { publicId: profilePublicId },
       select: { publicId: true, isPrivate: true },

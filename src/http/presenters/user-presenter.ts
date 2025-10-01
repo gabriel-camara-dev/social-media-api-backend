@@ -3,6 +3,9 @@ import { Posts, User, USER_ROLE } from '@prisma/client'
 interface HTTPUser {
   id: string
   name: string
+  username: string
+  description: string | null
+  birthDate: Date | null
   email: string
   role: USER_ROLE
   createdAt: Date
@@ -20,6 +23,9 @@ export class UserPresenter {
     return {
       id: input.publicId,
       name: input.name,
+      username: input.username,
+      description: input.description,
+      birthDate: input.birthDate,
       email: input.email,
       role: input.role,
       createdAt: input.createdAt,

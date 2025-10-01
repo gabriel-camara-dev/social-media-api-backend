@@ -17,7 +17,9 @@ model User {
   id             Int       @id @default(autoincrement())
   publicId       String    @unique @default(uuid()) @map("public_id")
   name           String
+  username       String    @unique
   email          String    @unique
+  birthDate      DateTime?  @map("birth_date")
   description    String?
   loginAttempts  Int       @default(0) @map("login_attempts")
   lastLogin      DateTime? @map("last_login")
@@ -109,13 +111,13 @@ model Repost {
   publicId  String   @unique @default(uuid()) @map("public_id")
   createdAt DateTime @default(now()) @map("created_at")
 
-  postId String?   @map("post_id")
-  post   Posts? @relation(fields: [postId], references: [publicId], onDelete: Cascade)
+  postId String? @map("post_id")
+  post   Posts?  @relation(fields: [postId], references: [publicId], onDelete: Cascade)
 
-  userId String  @map("user_id")
-  user   User @relation(fields: [userId], references: [publicId], onDelete: Cascade)
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [publicId], onDelete: Cascade)
 
-  commentId String?     @map("comment_id")
+  commentId String?  @map("comment_id")
   comment   Comment? @relation(fields: [commentId], references: [publicId], onDelete: Cascade)
 
   @@map("reposts")

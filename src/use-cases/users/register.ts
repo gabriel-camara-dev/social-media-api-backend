@@ -6,6 +6,7 @@ import { UserWithSameEmailError } from '../errors/user-with-same-email-error'
 
 interface RegisterUseCaseRequest {
   name: string
+  username: string
   email: string
   password: string
 }
@@ -19,6 +20,7 @@ export class RegisterUseCase {
 
   async execute({
     name,
+    username,
     email,
     password,
   }: RegisterUseCaseRequest): Promise<RegisterUseCaseResponse> {
@@ -31,6 +33,7 @@ export class RegisterUseCase {
 
     const user = await this.usersRepository.create({
       name,
+      username,
       email,
       passwordDigest: passwordDigest,
     })

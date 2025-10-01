@@ -8,18 +8,27 @@ export async function register(request: FastifyRequest, reply: FastifyReply) {
   const registerBodySchema = z
     .object({
       name: z.string(),
+      username: z
+        .string()
+        .min(3, 'Username must be at least 3 characters long')
+        .max(25, 'Username must be at most 25 characters long')
+        .regex(
+          /^[a-zA-Z0-9_]+$/,
+          'Username can only contain letters, numbers, and underscores (_)'
+        ),
       email: z.string().email(),
       password: z.string().min(6),
     })
     .parse(request.body)
 
-  const { name, email, password } = registerBodySchema
+  const { name, username, email, password } = registerBodySchema
 
   try {
     const registerUserCase = makeRegisterUseCase()
 
     const { user } = await registerUserCase.execute({
       name,
+      username,
       email,
       password,
     })
