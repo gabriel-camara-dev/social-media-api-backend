@@ -21,7 +21,6 @@ interface HTTPUserProfile {
     title: string
     content: string
     likes: number
-    published: boolean
     createdAt: Date
     updatedAt: Date
   }[]
@@ -75,7 +74,6 @@ export class UserProfilePresenter {
         title: post.title,
         content: post.content,
         likes: post.likes,
-        published: post.published,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
       })),
