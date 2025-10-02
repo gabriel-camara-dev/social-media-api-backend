@@ -6,9 +6,9 @@ export interface PostsRepository {
   create: (data: Prisma.PostsUncheckedCreateInput) => Promise<PostsWithAuthor>
   findById: (id: number) => Promise<PostsWithAuthor | null>
   findByPublicId: (publicId: string) => Promise<PostsWithAuthor | null>
-  delete: (id: number) => Promise<void>
+  delete: (publicId: string) => Promise<void>
   update: (
-    id: number,
+    publicId: string,
     data: Prisma.PostsUpdateInput
   ) => Promise<PostsWithAuthor>
 }

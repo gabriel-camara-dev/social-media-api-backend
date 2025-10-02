@@ -2,9 +2,10 @@ import { Prisma } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
 import { PostsRepository, PostsWithAuthor } from '../posts-repository'
 
-
 export class PrismaPostsRepository implements PostsRepository {
-  async create(data: Prisma.PostsUncheckedCreateInput): Promise<PostsWithAuthor> {
+  async create(
+    data: Prisma.PostsUncheckedCreateInput
+  ): Promise<PostsWithAuthor> {
     const post = await prisma.posts.create({
       data,
       include: {
@@ -37,15 +38,18 @@ export class PrismaPostsRepository implements PostsRepository {
     return post
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(publicId: string): Promise<void> {
     await prisma.posts.delete({
-      where: { id },
+      where: { publicId },
     })
   }
 
-  async update(id: number, data: Prisma.PostsUpdateInput): Promise<PostsWithAuthor> {
+  async update(
+    publicId: string,
+    data: Prisma.PostsUpdateInput
+  ): Promise<PostsWithAuthor> {
     const post = await prisma.posts.update({
-      where: { id },
+      where: { publicId },
       data,
       include: {
         author: true,
