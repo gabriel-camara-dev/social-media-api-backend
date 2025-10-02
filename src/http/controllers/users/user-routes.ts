@@ -8,6 +8,7 @@ import { listFollowing } from './list-following'
 import { listFollowers } from './list-followers'
 import { togglePrivateProfile } from './toggle-private-profile'
 import { optionalAuthentication } from '../../../middlewares/optional-authentication'
+import { updateUser } from './update-user'
 
 export async function userRoutes(app: FastifyInstance) {
   app.post('', register)
@@ -24,7 +25,13 @@ export async function userRoutes(app: FastifyInstance) {
     togglePrivateProfile
   )
 
-  app.get('/profile/:publicId', { preHandler: optionalAuthentication }, GetUserProfile)
+  app.patch('/update', { preHandler: authentication }, updateUser)
+
+  app.get(
+    '/profile/:publicId',
+    { preHandler: optionalAuthentication },
+    GetUserProfile
+  )
   app.get('/profile', { preHandler: authentication }, GetProfile)
 
   app.get('/followers', { preHandler: authentication }, listFollowers)
