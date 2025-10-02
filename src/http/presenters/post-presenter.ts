@@ -1,11 +1,27 @@
 import { Posts, User } from '@prisma/client'
+import {
+  HTTPComment,
+  CommentPresenter,
+  CommentWithAuthorAndReplies,
+} from './comment-presenter'
+import { PostWithComments } from '../../repositories/posts-repository'
 
-interface HTTPPost {
+export interface HTTPPost {
   id: string
   content: string
   likes: number
   createdAt: Date
   updatedAt: Date
+  author: {
+    id: string
+    name: string
+    username: string
+    isPrivate: boolean
+  }
+}
+
+export interface HTTPPostWithComments extends HTTPPost {
+  comments: HTTPComment[]
 }
 
 export class PostPresenter {
@@ -24,6 +40,29 @@ export class PostPresenter {
       likes: input.likes,
       createdAt: input.createdAt,
       updatedAt: input.updatedAt,
+      author: {
+        id: input.author.publicId,
+        name: input.author.name,
+        username: input.author.username,
+        isPrivate: input.author.isPrivate,
+      },
     }
+  }
+
+  static toHTTPWithComments(post: PostWithComments): HTTPPostWithComments {
+    const basePost = this.toHTTP(post) as HTTPPost
+
+    return {
+      ...basePost,
+      comments: CommentPresenter.toHTTPWithRepliesArray(post.comments).sort(
+        (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+      ),
+    }
+  }
+
+  static toHTTPWithCommentsArray(
+    posts: PostWithComments[]
+  ): HTTPPostWithComments[] {
+    return posts.map((post) => this.toHTTPWithComments(post))
   }
 }
