@@ -42,7 +42,7 @@ export interface UsersRepository {
   findByPublicId: (publicId: string) => Promise<User | null>
   findByEmail: (email: string) => Promise<User | null>
   setLastLogin: (id: number) => Promise<void>
-  delete: (id: number) => Promise<void>
+  delete: (userId: string) => Promise<void>
   update: (publicId: string, data: Prisma.UserUpdateInput) => Promise<User>
   getUserProfileInfo: (publicId: string) => Promise<UserProfileInfo | null>
   getProfileInfo: (userId: number) => Promise<UserProfileInfo | null>
