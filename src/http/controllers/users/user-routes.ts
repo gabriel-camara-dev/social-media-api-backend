@@ -9,6 +9,7 @@ import { listFollowers } from './list-followers'
 import { togglePrivateProfile } from './toggle-private-profile'
 import { optionalAuthentication } from '../../../middlewares/optional-authentication'
 import { updateUser } from './update-user'
+import { deleteProfile } from './delete-profile'
 
 export async function userRoutes(app: FastifyInstance) {
   app.post('', register)
@@ -36,4 +37,6 @@ export async function userRoutes(app: FastifyInstance) {
 
   app.get('/followers', { preHandler: authentication }, listFollowers)
   app.get('/following', { preHandler: authentication }, listFollowing)
+
+  app.delete('/delete-profile', { preHandler: authentication }, deleteProfile)
 }

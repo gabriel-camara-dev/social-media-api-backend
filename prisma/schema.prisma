@@ -53,7 +53,7 @@ model AuthenticationAudit {
   browser    String?
   status     AUTHENTICATION_STATUS
   userId     Int?                  @map("user_id")
-  user       User?                 @relation(fields: [userId], references: [id], onDelete: NoAction)
+  user       User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt  DateTime              @default(now()) @map("created_at")
 
   @@map("authentication_audit")
