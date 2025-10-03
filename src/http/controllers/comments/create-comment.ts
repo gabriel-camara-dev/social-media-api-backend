@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { makeCreateCommentUseCase } from '../../../use-cases/factories/make-create-comment-use-case'
 import { ResourceNotFoundError } from '../../../use-cases/errors/resource-not-found-error'
 import { CommentPresenter } from '../../presenters/comment-presenter'
+import { UploadService } from '../../../utils/upload'
 
 export async function createComment(
   request: FastifyRequest,
@@ -20,7 +21,11 @@ export async function createComment(
   )
 
   const file = (request as any).file
-  const image = file?.filename
+  let image = undefined
+
+  if (file) {
+    image = await UploadService.compressImage(file.filename)
+  }
 
   const authorId = request.userId
 

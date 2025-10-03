@@ -1,5 +1,6 @@
 import { promises as fsPromises } from 'fs'
 import path from 'path'
+import sharp from 'sharp'
 
 export const UploadService = {
   async deleteFile(filePath: string) {
@@ -22,6 +23,32 @@ export const UploadService = {
       return true
     } catch {
       return false
+    }
+  },
+
+  async compressImage(filePath: string) {
+    const inputPath = path.resolve(__dirname, '..', '..', 'uploads', filePath)
+    const compressedFilename = `compressed-${filePath}`
+    const outputPath = path.resolve(
+      __dirname,
+      '..',
+      '..',
+      'uploads',
+      compressedFilename
+    )
+
+    try {
+      await sharp(inputPath)
+        .resize(1200)
+        .jpeg({ quality: 80 })
+        .toFile(outputPath)
+
+      await this.deleteFile(filePath)
+
+      return compressedFilename
+    } catch (error) {
+      console.error('Error compressing image:', error)
+      return filePath
     }
   },
 }

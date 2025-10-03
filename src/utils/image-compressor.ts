@@ -1,0 +1,39 @@
+// src/utils/image-compressor.ts
+import sharp from 'sharp'
+import fs from 'fs/promises'
+
+export class ImageCompressor {
+  static async compressImage(
+    inputPath: string,
+    outputPath: string,
+    options = { quality: 80, width: 1200 }
+  ) {
+    try {
+      await sharp(inputPath)
+        .resize(options.width)
+        .jpeg({ quality: options.quality })
+        .toFile(outputPath)
+
+      return { success: true, outputPath }
+    } catch (error) {
+      return { success: false, error }
+    }
+  }
+
+  static async getCompressedImageInfo(
+    originalPath: string,
+    compressedPath: string
+  ) {
+    const originalStats = await fs.stat(originalPath)
+    const compressedStats = await fs.stat(compressedPath)
+
+    const savings =
+      ((originalStats.size - compressedStats.size) / originalStats.size) * 100
+
+    return {
+      originalSize: originalStats.size,
+      compressedSize: compressedStats.size,
+      savings: Math.round(savings),
+    }
+  }
+}

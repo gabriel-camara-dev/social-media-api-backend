@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { makeCreatePostUseCase } from '../../../use-cases/factories/make-create-posts-use-case'
 import { PostPresenter } from '../../presenters/post-presenter'
 import { ResourceNotFoundError } from '../../../use-cases/errors/resource-not-found-error'
+import { UploadService } from '../../../utils/upload'
 
 export async function createPost(request: FastifyRequest, reply: FastifyReply) {
   const createPostBodySchema = z.object({
@@ -12,7 +13,11 @@ export async function createPost(request: FastifyRequest, reply: FastifyReply) {
   const { content } = createPostBodySchema.parse(request.body)
 
   const file = (request as any).file
-  const image = file?.filename
+  let image = undefined
+
+  if (file) {
+    image = await UploadService.compressImage(file.filename)
+  }
 
   const userId = request.userId
 
