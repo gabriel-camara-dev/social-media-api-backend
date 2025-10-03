@@ -12,6 +12,7 @@ import { updateUser } from './update-user'
 import { deleteProfile } from './delete-profile'
 import { upload } from '../../../lib/multer'
 import { uploadProfilePicture } from './upload-profile-picture'
+import { deleteProfilePicture } from './delete-profile-picture'
 
 export async function userRoutes(app: FastifyInstance) {
   app.post('', register)
@@ -49,4 +50,10 @@ export async function userRoutes(app: FastifyInstance) {
   app.get('/following', { preHandler: authentication }, listFollowing)
 
   app.delete('/delete-profile', { preHandler: authentication }, deleteProfile)
+
+  app.delete(
+    '/profile-picture',
+    { preHandler: authentication },
+    deleteProfilePicture
+  )
 }
