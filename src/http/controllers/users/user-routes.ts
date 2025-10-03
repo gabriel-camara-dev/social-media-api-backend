@@ -10,9 +10,19 @@ import { togglePrivateProfile } from './toggle-private-profile'
 import { optionalAuthentication } from '../../../middlewares/optional-authentication'
 import { updateUser } from './update-user'
 import { deleteProfile } from './delete-profile'
+import { upload } from '../../../lib/multer'
+import { uploadProfilePicture } from './upload-profile-picture'
 
 export async function userRoutes(app: FastifyInstance) {
   app.post('', register)
+
+  app.post(
+    '/upload-profile-picture',
+    {
+      preHandler: [authentication, upload.single('file')],
+    },
+    uploadProfilePicture
+  )
 
   app.post(
     '/follow-or-unfollow/:publicId',

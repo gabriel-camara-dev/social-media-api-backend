@@ -7,6 +7,7 @@ import cors from '@fastify/cors'
 import { appRoutes } from './http/routes'
 import path from 'path'
 import fastifyStatic from '@fastify/static'
+import fastifyMultipart from '@fastify/multipart'
 
 export const app = fastify()
 
@@ -14,6 +15,8 @@ app.register(cors, {
   origin: env.FRONTEND_URL,
   credentials: true,
 })
+
+app.register(fastifyMultipart)
 
 app.register(fastifyCookie)
 
