@@ -1,4 +1,3 @@
-// src/utils/image-compressor.ts
 import sharp from 'sharp'
 import fs from 'fs/promises'
 

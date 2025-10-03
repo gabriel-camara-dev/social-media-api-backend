@@ -1,4 +1,3 @@
-// src/config/image-compression.ts
 export const compressionConfig = {
   profile: {
     quality: 80,
