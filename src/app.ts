@@ -8,6 +8,7 @@ import { appRoutes } from './http/routes'
 import path from 'path'
 import fastifyStatic from '@fastify/static'
 import fastifyMultipart from '@fastify/multipart'
+import { MulterError } from 'fastify-multer'
 
 export const app = fastify()
 
@@ -46,6 +47,18 @@ app.setErrorHandler((error, _, reply) => {
     return reply
       .status(400)
       .send({ message: 'Validation error!', issues: error.format() })
+  } else if (error instanceof MulterError) {
+    return reply.status(422).send({
+      message: 'File error',
+      issues: error.message + ' ' + error.field,
+    })
+  } else if (error.code === 'FST_ERR_CTP_EMPTY_JSON_BODY') {
+    return reply.status(400).send({
+      message:
+        'Body cannot be empty when content-type is set to application/json',
+    })
+  } else if (error instanceof SyntaxError) {
+    return reply.status(400).send({ message: error.message })
   }
 
   if (env.NODE_ENV !== 'production') {
