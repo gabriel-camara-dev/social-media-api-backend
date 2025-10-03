@@ -18,7 +18,6 @@ Uma API robusta e escalável para redes sociais, construída com Fastify, Prisma
   - [Arquitetura](#arquitetura)
 - [📋 Pré-requisitos](#-pré-requisitos)
 - [🚀 Instalação e Configuração](#-instalação-e-configuração)
-- [🏗️ Estrutura do Projeto](#️-estrutura-do-projeto)
 - [🔒 Segurança Implementada](#-segurança-implementada)
 
 ---
@@ -133,25 +132,6 @@ Inicie o servidor:
 
 ```bash
 npm run dev
-```
-
----
-
-## 🏗️ Estrutura do Projeto
-
-```text
-src/
-├── http/              # Camada de transporte (HTTP)
-│   ├── controllers/   # Controladores das rotas
-│   ├── routes/        # Definição de rotas
-│   ├── presenters/    # Formatação de responses
-│   └── middlewares/   # Autenticação e validações
-├── use-cases/         # Lógica de negócio
-│   ├── factories/     # Injeção de dependências
-│   └── errors/        # Erros customizados
-├── repositories/      # Camada de acesso a dados
-│   └── prisma/        # Implementações com Prisma
-└── lib/               # Configurações e utilitários
 ```
 
 ---
