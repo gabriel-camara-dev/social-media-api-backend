@@ -18,21 +18,4 @@ export class ImageCompressor {
       return { success: false, error }
     }
   }
-
-  static async getCompressedImageInfo(
-    originalPath: string,
-    compressedPath: string
-  ) {
-    const originalStats = await fs.stat(originalPath)
-    const compressedStats = await fs.stat(compressedPath)
-
-    const savings =
-      ((originalStats.size - compressedStats.size) / originalStats.size) * 100
-
-    return {
-      originalSize: originalStats.size,
-      compressedSize: compressedStats.size,
-      savings: Math.round(savings),
-    }
-  }
 }
