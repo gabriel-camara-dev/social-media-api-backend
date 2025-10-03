@@ -54,6 +54,8 @@ Uma API robusta e escalável para redes sociais, construída com Fastify, Prisma
 - Servidor de arquivos estáticos integrado
 - Limpeza automática de imagens não utilizadas
 
+---
+
 ## 🛠️ Tecnologias & Arquitetura
 
 ### Backend Framework
@@ -82,11 +84,15 @@ Uma API robusta e escalável para redes sociais, construída com Fastify, Prisma
 - Use Cases isolados para regras de negócio
 - Presenters para formatação de responses
 
+---
+
 ## 📋 Pré-requisitos
 
 - Node.js 18+
 - PostgreSQL 12+
 - npm ou yarn
+
+---
 
 ## 🚀 Instalação e Configuração
 
@@ -99,49 +105,63 @@ cd Template-backend
 
 Instale as dependências:
 
+```bash
 npm install
+```
 
+Copie o arquivo de ambiente:
+
+```bash
 cp .env.example .env
+```
 
-Edite o .env com suas configurações:
+Edite o `.env` com suas configurações:
 
+```bash
 DATABASE_URL="postgresql://user:password@localhost:5432/socialdb"
 JWT_SECRET="seu-jwt-super-secreto"
 FRONTEND_URL="http://localhost:3000"
+```
 
 Execute as migrações do banco:
 
+```bash
 npx prisma migrate dev
+```
 
 Inicie o servidor:
 
+```bash
 npm run dev
+```
 
+---
+
+## 🏗️ Estrutura do Projeto
+
+```text
 src/
-├── http/ # Camada de transporte (HTTP)
-│ ├── controllers/ # Controladores das rotas
-│ ├── routes/ # Definição de rotas
-│ ├── presenters/ # Formatação de responses
-│ └── middlewares/ # Autenticação e validações
-├── use-cases/ # Lógica de negócio
-│ ├── factories/ # Injeção de dependências
-│ └── errors/ # Erros customizados
-├── repositories/ # Camada de acesso a dados
-│ └── prisma/ # Implementações com Prisma
-└── lib/ # Configurações e utilitários
+├── http/              # Camada de transporte (HTTP)
+│   ├── controllers/   # Controladores das rotas
+│   ├── routes/        # Definição de rotas
+│   ├── presenters/    # Formatação de responses
+│   └── middlewares/   # Autenticação e validações
+├── use-cases/         # Lógica de negócio
+│   ├── factories/     # Injeção de dependências
+│   └── errors/        # Erros customizados
+├── repositories/      # Camada de acesso a dados
+│   └── prisma/        # Implementações com Prisma
+└── lib/               # Configurações e utilitários
+```
+
+---
 
 ## 🔒 Segurança Implementada
 
-Validação de entrada com Zod
-
-Hash de senhas com bcrypt
-
-Tokens JWT com expiração
-
-Rate limiting automático
-
-CORS configurado
-
-Auditoria de acesso
-
-Upload seguro de arquivos
+- Validação de entrada com Zod  
+- Hash de senhas com bcrypt  
+- Tokens JWT com expiração  
+- Rate limiting automático  
+- CORS configurado  
+- Auditoria de acesso  
+- Upload seguro de arquivos
