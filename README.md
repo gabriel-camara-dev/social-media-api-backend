@@ -1,4 +1,4 @@
-### 🚀 Social Media API - Backend Completo
+# 🚀 Social Media API - Backend Completo
 
 Uma API robusta e escalável para redes sociais, construída com Fastify, Prisma e TypeScript. Oferece funcionalidades completas de autenticação, posts, comentários, sistema de seguidores e upload de imagens.
 
@@ -23,7 +23,7 @@ Uma API robusta e escalável para redes sociais, construída com Fastify, Prisma
 
 ---
 
-### ✨ Funcionalidades Principais
+# ✨ Funcionalidades Principais
 
 ## 🔐 Sistema de Autenticação
 
