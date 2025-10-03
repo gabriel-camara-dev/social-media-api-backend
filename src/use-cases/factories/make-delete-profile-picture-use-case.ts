@@ -1,5 +1,5 @@
 import { PrismaUsersRepository } from '../../repositories/prisma/prisma-users-repository'
-import { DeleteProfilePictureUseCase } from '../users/delete-profile-picture'
+import { DeleteProfilePictureUseCase } from '../users/delete-profile-picture-use-case'
 
 export function makeDeleteProfilePictureUseCase() {
   const usersRepository = new PrismaUsersRepository()
