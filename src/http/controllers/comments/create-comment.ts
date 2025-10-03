@@ -2,8 +2,8 @@
 import { type FastifyRequest, type FastifyReply } from 'fastify'
 import { z } from 'zod'
 import { makeCreateCommentUseCase } from '../../../use-cases/factories/make-create-comment-use-case'
-import { CommentPresenter } from '../../presenters/comment-presenter'
 import { ResourceNotFoundError } from '../../../use-cases/errors/resource-not-found-error'
+import { CommentPresenter } from '../../presenters/comment-presenter'
 
 export async function createComment(
   request: FastifyRequest,
@@ -19,6 +19,9 @@ export async function createComment(
     request.body
   )
 
+  const file = (request as any).file
+  const image = file?.filename
+
   const authorId = request.userId
 
   if (!authorId) {
@@ -33,6 +36,7 @@ export async function createComment(
       postId,
       content,
       parentId,
+      image,
     })
 
     return reply.status(201).send({
@@ -43,8 +47,6 @@ export async function createComment(
       return reply.status(404).send({ message: error.message })
     }
 
-    return reply.status(500).send({
-      message: error.message || 'Error creating comment',
-    })
+    throw error
   }
 }

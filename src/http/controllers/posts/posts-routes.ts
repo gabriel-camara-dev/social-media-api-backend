@@ -4,9 +4,16 @@ import { authentication } from '../../../middlewares/authentication'
 import { updatePost } from './update-post'
 import { deletePost } from './delete-post'
 import { listPost } from './list-post'
+import { upload } from '../../../lib/multer'
 
 export async function postsRoutes(app: FastifyInstance) {
-  app.post('/', { preHandler: authentication }, createPost)
+  app.post(
+    '/',
+    {
+      preHandler: [authentication, upload.single('image')],
+    },
+    createPost
+  )
 
   app.get('/:publicId', { preHandler: authentication }, listPost)
 

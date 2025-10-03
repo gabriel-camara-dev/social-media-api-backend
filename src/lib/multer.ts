@@ -1,3 +1,4 @@
+// src/lib/multer.ts
 import multer from 'fastify-multer'
 import path from 'path'
 import crypto from 'crypto'
@@ -13,4 +14,20 @@ const storage = multer.diskStorage({
   },
 })
 
-export const upload = multer({ storage })
+export const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true)
+    } else {
+      cb(
+        new Error('Invalid file type. Only JPEG, JPG, PNG and GIF are allowed')
+      )
+    }
+  },
+})

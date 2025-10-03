@@ -8,6 +8,7 @@ interface CreateCommentUseCaseRequest {
   postId: string
   content: string
   parentId?: string
+  image?: string
 }
 
 interface CreateCommentUseCaseResponse {
@@ -22,12 +23,14 @@ export class CreateCommentUseCase {
     postId,
     content,
     parentId,
+    image,
   }: CreateCommentUseCaseRequest): Promise<CreateCommentUseCaseResponse> {
     const comment = await this.commentsRepository.create({
       authorId,
       postId,
       content,
       parentId: parentId || null,
+      image: image || null,
     })
 
     return {
