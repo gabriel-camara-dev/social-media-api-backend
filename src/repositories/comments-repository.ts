@@ -1,9 +1,18 @@
-import { Comment, Prisma } from '@prisma/client'
+import { Comment, Prisma, User } from '@prisma/client'
+
+export interface CommentWithAuthor extends Comment {
+  author: User
+}
 
 export interface CommentRepository {
-  create: (data: Prisma.CommentUncheckedCreateInput) => Promise<Comment>
-  findById: (id: number) => Promise<Comment | null>
-  findByPublicId: (publicId: string) => Promise<Comment | null>
+  create: (
+    data: Prisma.CommentUncheckedCreateInput
+  ) => Promise<CommentWithAuthor>
+  findById: (id: number) => Promise<CommentWithAuthor | null>
+  findByPublicId: (publicId: string) => Promise<CommentWithAuthor | null>
   delete: (id: number) => Promise<void>
-  update: (id: number, data: Prisma.CommentUpdateInput) => Promise<Comment>
+  update: (
+    id: number,
+    data: Prisma.CommentUpdateInput
+  ) => Promise<CommentWithAuthor>
 }

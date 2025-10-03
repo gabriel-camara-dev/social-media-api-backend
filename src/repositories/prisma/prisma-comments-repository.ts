@@ -1,6 +1,7 @@
+// src/repositories/prisma/prisma-comments-repository.ts
 import { Prisma } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
-import { CommentRepository } from '../comments-repository'
+import { CommentRepository, CommentWithAuthor } from '../comments-repository'
 
 export class PrismaCommentsRepository implements CommentRepository {
   async delete(id: number) {
@@ -11,7 +12,10 @@ export class PrismaCommentsRepository implements CommentRepository {
     })
   }
 
-  async update(id: number, data: Prisma.CommentUpdateInput) {
+  async update(
+    id: number,
+    data: Prisma.CommentUpdateInput
+  ): Promise<CommentWithAuthor> {
     const comment = await prisma.comment.update({
       where: { id },
       data,
@@ -23,7 +27,9 @@ export class PrismaCommentsRepository implements CommentRepository {
     return comment
   }
 
-  async create(data: Prisma.CommentUncheckedCreateInput) {
+  async create(
+    data: Prisma.CommentUncheckedCreateInput
+  ): Promise<CommentWithAuthor> {
     const comment = await prisma.comment.create({
       data,
       include: {
@@ -33,7 +39,7 @@ export class PrismaCommentsRepository implements CommentRepository {
     return comment
   }
 
-  async findById(id: number) {
+  async findById(id: number): Promise<CommentWithAuthor | null> {
     const comment = await prisma.comment.findUnique({
       where: {
         id,
@@ -45,7 +51,7 @@ export class PrismaCommentsRepository implements CommentRepository {
     return comment
   }
 
-  async findByPublicId(publicId: string) {
+  async findByPublicId(publicId: string): Promise<CommentWithAuthor | null> {
     const comment = await prisma.comment.findUnique({
       where: {
         publicId,
@@ -55,26 +61,5 @@ export class PrismaCommentsRepository implements CommentRepository {
       },
     })
     return comment
-  }
-
-  async findByPostId(postId: string) {
-    const comments = await prisma.comment.findMany({
-      where: {
-        postId,
-        parentId: null,
-      },
-      include: {
-        author: true,
-        replies: {
-          include: {
-            author: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
-    return comments
   }
 }

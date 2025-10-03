@@ -4,6 +4,7 @@ import { postsRoutes } from './controllers/posts/posts-routes'
 import { authenticate } from './controllers/users/authenticate'
 import { refreshToken } from './controllers/users/refresh-token'
 import { logout } from './controllers/users/logout'
+import { commentsRoutes } from './controllers/comments/comments-routes'
 
 export async function appRoutes(app: FastifyInstance) {
   app.post('/sessions', authenticate)
@@ -12,4 +13,5 @@ export async function appRoutes(app: FastifyInstance) {
 
   app.register(userRoutes, { prefix: '/users' })
   app.register(postsRoutes, { prefix: '/posts' })
+  app.register(commentsRoutes, { prefix: '/comments' })
 }
