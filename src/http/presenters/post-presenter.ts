@@ -10,10 +10,12 @@ export interface HTTPPost {
   id: string
   content: string
   likes: number
+  image?: string | null
   createdAt: Date
   updatedAt: Date
   author: {
     id: string
+    profilePicture?: string | null
     name: string
     username: string
     isPrivate: boolean
@@ -38,10 +40,12 @@ export class PostPresenter {
       id: input.publicId,
       content: input.content,
       likes: input.likes,
+      image: input.image,
       createdAt: input.createdAt,
       updatedAt: input.updatedAt,
       author: {
         id: input.author.publicId,
+        profilePicture: input.author.profilePicture,
         name: input.author.name,
         username: input.author.username,
         isPrivate: input.author.isPrivate,

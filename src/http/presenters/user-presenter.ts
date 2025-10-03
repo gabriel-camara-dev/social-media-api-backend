@@ -2,6 +2,7 @@ import { Posts, User, USER_ROLE } from '@prisma/client'
 
 interface HTTPUser {
   id: string
+  profilePicture?: string | null
   name: string
   username: string
   description: string | null
@@ -22,6 +23,7 @@ export class UserPresenter {
 
     return {
       id: input.publicId,
+      profilePicture: input.profilePicture,
       name: input.name,
       username: input.username,
       description: input.description,

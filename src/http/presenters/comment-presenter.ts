@@ -4,10 +4,12 @@ export interface HTTPComment {
   id: string
   content: string
   likes: number
+  image?: string | null
   createdAt: Date
   updatedAt: Date
   author: {
     id: string
+    profilePicture?: string | null
     name: string
     username: string
     isPrivate: boolean
@@ -49,8 +51,8 @@ export class CommentPresenter {
     const baseComment = this.toHTTP(comment) as HTTPComment
 
     if (comment.replies && comment.replies.length > 0) {
-      baseComment.replies = comment.replies.map(
-        (reply) => this.toHTTPWithReplies({ ...reply, replies: [] })
+      baseComment.replies = comment.replies.map((reply) =>
+        this.toHTTPWithReplies({ ...reply, replies: [] })
       )
     }
 

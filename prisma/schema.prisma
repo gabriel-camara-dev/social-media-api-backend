@@ -19,8 +19,9 @@ model User {
   name           String
   username       String    @unique
   email          String    @unique
-  birthDate      DateTime?  @map("birth_date")
+  birthDate      DateTime? @map("birth_date")
   description    String?
+  profilePicture String?   @map("profile_picture")
   loginAttempts  Int       @default(0) @map("login_attempts")
   lastLogin      DateTime? @map("last_login")
   passwordDigest String    @map("password_digest")
@@ -70,6 +71,7 @@ model Posts {
   id        Int      @id @default(autoincrement())
   publicId  String   @unique @default(uuid()) @map("public_id")
   content   String
+  image     String?
   likes     Int      @default(0)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -88,6 +90,7 @@ model Comment {
   publicId  String   @unique @default(uuid()) @map("public_id")
   likes     Int      @default(0)
   content   String
+  image     String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
