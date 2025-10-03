@@ -1,5 +1,9 @@
 import { Prisma, User } from '@prisma/client'
-import { UserProfileInfo, UsersRepository } from '../users-repository'
+import {
+  UserProfileInfo,
+  UserResponseData,
+  UsersRepository,
+} from '../users-repository'
 import { prisma } from '../../lib/prisma'
 import { UsernameAlreadyTakenError } from '../../use-cases/errors/username-already-taken'
 
@@ -9,6 +13,7 @@ export class PrismaUsersRepository implements UsersRepository {
       where: { id: userId },
       select: {
         publicId: true,
+        profilePicture: true,
         name: true,
         username: true,
         description: true,
@@ -57,6 +62,7 @@ export class PrismaUsersRepository implements UsersRepository {
 
     return {
       publicId: user.publicId,
+      profilePicture: user.profilePicture,
       name: user.name,
       username: user.username,
       description: user.description,
@@ -92,6 +98,7 @@ export class PrismaUsersRepository implements UsersRepository {
         publicId: true,
         name: true,
         username: true,
+        profilePicture: true,
         description: true,
         birthDate: true,
         role: true,
@@ -138,6 +145,7 @@ export class PrismaUsersRepository implements UsersRepository {
 
     return {
       publicId: user.publicId,
+      profilePicture: user.profilePicture,
       name: user.name,
       username: user.username,
       description: user.description,
@@ -180,6 +188,7 @@ export class PrismaUsersRepository implements UsersRepository {
 
     return user.followers.map((f) => ({
       publicId: f.follower.publicId,
+      profilePicture: f.follower.profilePicture,
       name: f.follower.name,
       username: f.follower.username,
       birthDate: f.follower.birthDate ?? undefined,
@@ -201,6 +210,7 @@ export class PrismaUsersRepository implements UsersRepository {
 
     return user.following.map((f) => ({
       publicId: f.following.publicId,
+      profilePicture: f.following.profilePicture,
       name: f.following.name,
       username: f.following.username,
       birthDate: f.following.birthDate ?? undefined,

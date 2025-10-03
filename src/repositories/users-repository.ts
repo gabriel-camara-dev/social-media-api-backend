@@ -1,4 +1,8 @@
-import { Prisma, User, USER_ROLE } from '@prisma/client'
+import { Prisma, User } from '@prisma/client'
+import {
+  HTTPUser,
+  HTTPUserProfileInfo,
+} from '../http/presenters/user-presenter'
 
 export interface FollowerOrFollowing {
   publicId: string
@@ -6,35 +10,15 @@ export interface FollowerOrFollowing {
   username: string
   birthDate?: Date
   description: string | null
+  profilePicture: string | null
 }
 
-export interface UserProfileInfo {
+export type UserResponseData = Omit<HTTPUser, 'id'> & {
   publicId: string
-  name: string
-  username: string
-  description: string | null
-  birthDate: Date | null
-  role: USER_ROLE
-  isPrivate: boolean
-  createdAt: Date
-  updatedAt: Date
-  postsOrRepostsCount: number
-  followersCount: number
-  followingCount: number
-  posts: {
-    id: string
-    content: string | null
-    likes: number
-    createdAt: Date
-    updatedAt: Date
-  }[]
-  reposts: {
-    id: string
-    content: string | null
-    likes: number
-    createdAt: Date
-    updatedAt: Date
-  }[]
+}
+
+export interface UserProfileInfo extends Omit<HTTPUserProfileInfo, 'id'> {
+  publicId: string
 }
 export interface UsersRepository {
   create: (data: Prisma.UserCreateInput) => Promise<User>
@@ -55,5 +39,8 @@ export interface UsersRepository {
   ) => Promise<void>
 
   togglePrivateProfile: (publicId: string) => Promise<void>
-  canViewProfile: (publicId: string | undefined, followingId: string) => Promise<boolean>
+  canViewProfile: (
+    publicId: string | undefined,
+    followingId: string
+  ) => Promise<boolean>
 }
