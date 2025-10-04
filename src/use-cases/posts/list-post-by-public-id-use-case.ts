@@ -6,7 +6,7 @@ import { PostNotFoundError } from '../errors/post-not-found-error'
 
 interface ListPostByPublicIdUseCaseRequest {
   publicId: string
-  options: {
+  options?: {
     commentsLimit?: number
     repliesLimit?: number
   }

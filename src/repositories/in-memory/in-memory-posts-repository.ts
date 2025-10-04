@@ -1,12 +1,14 @@
-import { Posts, Prisma, User } from '@prisma/client'
+import { Posts, Prisma, User, Comment } from '@prisma/client'
 import {
   PostsRepository,
   PostsWithAuthor,
   PostWithComments,
 } from '../posts-repository'
+import { CommentWithAuthorAndReplies } from '../../http/presenters/comment-presenter'
 
 export class InMemoryPostsRepository implements PostsRepository {
   public items: Posts[] = []
+  public comments: Comment[] = []
 
   async create(
     data: Prisma.PostsUncheckedCreateInput
@@ -83,6 +85,69 @@ export class InMemoryPostsRepository implements PostsRepository {
       return null
     }
 
+    const commentsLimit = options?.commentsLimit || 10
+    const repliesLimit = options?.repliesLimit || 3
+
+    const postComments = this.comments
+      .filter(
+        (comment) => comment.postId === publicId && comment.parentId === null
+      )
+      .slice(0, commentsLimit)
+
+    const commentsWithReplies: CommentWithAuthorAndReplies[] = postComments.map(
+      (comment) => {
+        const commentReplies = this.comments
+          .filter((reply) => reply.parentId === comment.publicId)
+          .slice(0, repliesLimit)
+
+        return {
+          ...comment,
+          author: {
+            id: 1,
+            publicId: comment.authorId,
+            name: 'Comment Author',
+            username: 'commentauthor',
+            email: 'comment@example.com',
+            birthDate: null,
+            description: null,
+            profilePicture: null,
+            loginAttempts: 0,
+            lastLogin: null,
+            passwordDigest: 'hashed-password',
+            role: 'NORMAL_USER',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            isPrivate: false,
+          },
+          replies: commentReplies.map((reply) => ({
+            ...reply,
+            author: {
+              id: 2,
+              publicId: reply.authorId,
+              name: 'Reply Author',
+              username: 'replyauthor',
+              email: 'reply@example.com',
+              birthDate: null,
+              description: null,
+              profilePicture: null,
+              loginAttempts: 0,
+              lastLogin: null,
+              passwordDigest: 'hashed-password',
+              role: 'NORMAL_USER',
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              isPrivate: false,
+            },
+          })),
+        }
+      }
+    )
+
+    const totalComments = this.comments.filter(
+      (comment) => comment.postId === publicId && comment.parentId === null
+    ).length
+    const totalPages = Math.ceil(totalComments / commentsLimit)
+
     const postWithComments: PostWithComments = {
       ...post,
       author: {
@@ -102,8 +167,8 @@ export class InMemoryPostsRepository implements PostsRepository {
         role: 'NORMAL_USER',
         isPrivate: false,
       },
-      comments: [],
-      totalPages: 0,
+      comments: commentsWithReplies,
+      totalPages,
     }
 
     return postWithComments
