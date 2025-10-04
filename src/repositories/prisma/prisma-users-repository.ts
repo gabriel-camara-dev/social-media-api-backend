@@ -334,17 +334,6 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   async update(publicId: string, data: Prisma.UserUpdateInput) {
-    const usernameTaken = await prisma.user.findFirst({
-      where: {
-        username: data.username as string,
-        NOT: { publicId },
-      },
-    })
-
-    if (usernameTaken) {
-      throw new UsernameAlreadyTakenError()
-    }
-
     const user = await prisma.user.update({
       where: { publicId },
       data,

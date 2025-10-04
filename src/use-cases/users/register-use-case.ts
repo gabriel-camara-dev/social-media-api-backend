@@ -2,7 +2,7 @@ import { hash } from 'bcryptjs'
 import type { User, USER_ROLE } from '@prisma/client'
 import { UsersRepository } from '../../repositories/users-repository'
 import { UserWithSameEmailError } from '../errors/user-with-same-email-error'
-import { UserWithSameUsernameError } from '../errors/user-with-same-username-error'
+import { UsernameAlreadyTakenError } from '../errors/username-already-taken'
 
 interface RegisterUseCaseRequest {
   name: string
@@ -34,7 +34,7 @@ export class RegisterUseCase {
       await this.usersRepository.findByUsername(username)
 
     if (userWithSameUsername !== null) {
-      throw new UserWithSameUsernameError()
+      throw new UsernameAlreadyTakenError()
     }
 
     const passwordDigest = await hash(password, 10)
