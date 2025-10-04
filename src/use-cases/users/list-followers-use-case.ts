@@ -19,11 +19,13 @@ export class ListFollowersUseCase {
   async execute({
     publicId,
   }: ListFollowersUseCaseRequest): Promise<ListFollowersUseCaseResponse> {
-    const followers = await this.usersRepository.listFollowers(publicId)
+    const user = await this.usersRepository.findByPublicId(publicId)
 
-    if (followers === null) {
+    if (!user) {
       throw new ResourceNotFoundError()
     }
+
+    const followers = await this.usersRepository.listFollowers(publicId)
 
     return {
       followers,
