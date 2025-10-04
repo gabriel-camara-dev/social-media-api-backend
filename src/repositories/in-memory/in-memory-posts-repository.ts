@@ -5,7 +5,7 @@ import {
   PostWithComments,
 } from '../posts-repository'
 
-class InMemoryPostsRepository implements PostsRepository {
+export class InMemoryPostsRepository implements PostsRepository {
   public items: Posts[] = []
 
   async create(
