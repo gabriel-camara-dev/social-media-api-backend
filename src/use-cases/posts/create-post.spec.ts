@@ -3,7 +3,6 @@ import { InMemoryUsersRepository } from '../../repositories/in-memory/in-memory-
 import { InMemoryPostsRepository } from '../../repositories/in-memory/in-memory-posts-repository'
 import { CreatePostUseCase } from './create-post-use-case'
 
-// Mock do UploadService
 vi.mock('../../../utils/upload', () => ({
   UploadService: {
     compressImage: vi.fn().mockResolvedValue('compressed-image.jpg'),
