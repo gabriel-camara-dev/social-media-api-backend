@@ -56,7 +56,7 @@ describe('TogglePrivateProfileUseCase', () => {
     })
 
     const originalUpdatedAt = user.updatedAt
-    await new Promise(resolve => setTimeout(resolve, 1))
+    await new Promise(resolve => setTimeout(resolve, 15))
 
     await togglePrivateProfileUseCase.execute({
       publicId: user.publicId,
