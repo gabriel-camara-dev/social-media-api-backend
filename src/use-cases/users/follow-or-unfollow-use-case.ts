@@ -2,6 +2,7 @@ import {
   UserProfileInfo,
   UsersRepository,
 } from '../../repositories/users-repository'
+import { CantFollowYourselfError } from '../errors/cant-follow-yourself-error'
 import { ResourceNotFoundError } from '../errors/resource-not-found-error'
 
 interface FollowOrUnfollowUseCaseRequest {
@@ -16,6 +17,10 @@ export class FollowOrUnfollowUseCase {
     followerId,
     followingId,
   }: FollowOrUnfollowUseCaseRequest): Promise<void> {
+    if (followerId === followingId) {
+      throw new CantFollowYourselfError()
+    }
+    
     const following = await this.usersRepository.findByPublicId(followingId)
     const follower = await this.usersRepository.findByPublicId(followerId)
 
