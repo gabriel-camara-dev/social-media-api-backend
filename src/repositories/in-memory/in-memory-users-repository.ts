@@ -9,6 +9,10 @@ class InMemoryUsersRepository implements UsersRepository {
   public items: User[] = []
   public follows: { followerId: string; followingId: string }[] = []
 
+  async findByUsername (username: string) {
+    return this.items.find((item) => item.username === username) || null
+  }
+  
   async create(data: Prisma.UserCreateInput) {
     const user: User = {
       id: this.items.length + 1,

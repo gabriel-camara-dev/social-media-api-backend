@@ -8,6 +8,15 @@ import { prisma } from '../../lib/prisma'
 import { UsernameAlreadyTakenError } from '../../use-cases/errors/username-already-taken'
 
 export class PrismaUsersRepository implements UsersRepository {
+  async findByUsername(username: string) {
+    const user = await prisma.user.findUnique({
+      where: {
+        username,
+      },
+    })
+    return user
+  }
+
   async getProfileInfo(userId: number): Promise<UserProfileInfo | null> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
