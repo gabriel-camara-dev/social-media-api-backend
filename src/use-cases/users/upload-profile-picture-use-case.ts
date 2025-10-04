@@ -1,5 +1,6 @@
 import { UsersRepository } from '../../repositories/users-repository'
 import { UploadService } from '../../utils/upload'
+import { ResourceNotFoundError } from '../errors/resource-not-found-error'
 
 interface UploadProfilePictureUseCaseRequest {
   publicId: string
@@ -21,7 +22,7 @@ export class UploadProfilePictureUseCase {
     const user = await this.usersRepository.findByPublicId(publicId)
 
     if (!user) {
-      throw new Error('User not found')
+      throw new ResourceNotFoundError()
     }
 
     if (user.profilePicture) {
