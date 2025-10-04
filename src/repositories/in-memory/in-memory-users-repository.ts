@@ -12,7 +12,7 @@ class InMemoryUsersRepository implements UsersRepository {
   async findByUsername (username: string) {
     return this.items.find((item) => item.username === username) || null
   }
-  
+
   async create(data: Prisma.UserCreateInput) {
     const user: User = {
       id: this.items.length + 1,
@@ -169,10 +169,8 @@ class InMemoryUsersRepository implements UsersRepository {
     )
 
     if (existingIndex !== -1) {
-      // Unfollow: remove da lista
       this.follows.splice(existingIndex, 1)
     } else {
-      // Follow: adiciona na lista
       this.follows.push({ followerId, followingId })
     }
   }

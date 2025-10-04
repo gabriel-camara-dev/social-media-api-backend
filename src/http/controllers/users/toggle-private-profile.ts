@@ -22,6 +22,9 @@ export async function togglePrivateProfile(
 
     return await reply.status(200).send()
   } catch (err: unknown) {
+    if (err instanceof ResourceNotFoundError) {
+      return await reply.status(404).send({ message: err.message })
+    }
     throw err
   }
 }
