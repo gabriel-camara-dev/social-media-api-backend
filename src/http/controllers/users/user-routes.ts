@@ -13,6 +13,7 @@ import { deleteProfile } from './delete-profile'
 import { upload } from '../../../lib/multer'
 import { uploadProfilePicture } from './upload-profile-picture'
 import { deleteProfilePicture } from './delete-profile-picture'
+import { toggleLikeComment, toggleLikePost } from './toggle-like'
 
 export async function userRoutes(app: FastifyInstance) {
   app.post('', register)
@@ -23,6 +24,14 @@ export async function userRoutes(app: FastifyInstance) {
       preHandler: [authentication, upload.single('file')],
     },
     uploadProfilePicture
+  )
+
+  app.patch('/like/:postId', { preHandler: [authentication] }, toggleLikePost)
+
+  app.patch(
+    '/like/:commentId',
+    { preHandler: [authentication] },
+    toggleLikeComment
   )
 
   app.post(
