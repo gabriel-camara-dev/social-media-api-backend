@@ -26,10 +26,14 @@ export async function userRoutes(app: FastifyInstance) {
     uploadProfilePicture
   )
 
-  app.patch('/like/:postId', { preHandler: [authentication] }, toggleLikePost)
+  app.patch(
+    '/like/post/:postId',
+    { preHandler: [authentication] },
+    toggleLikePost
+  )
 
   app.patch(
-    '/like/:commentId',
+    '/like/comment/:commentId',
     { preHandler: [authentication] },
     toggleLikeComment
   )
