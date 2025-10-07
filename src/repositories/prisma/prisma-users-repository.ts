@@ -226,7 +226,7 @@ export class PrismaUsersRepository implements UsersRepository {
 
   async canViewProfile(
     profilePublicId: string | undefined,
-    viewerPublicId: string
+    viewerPublicId: string | undefined
   ) {
     if (!profilePublicId) return false
 
@@ -239,6 +239,10 @@ export class PrismaUsersRepository implements UsersRepository {
 
     if (!profileUser.isPrivate) {
       return true
+    }
+
+    if (!viewerPublicId) {
+      return false
     }
 
     const viewer = await prisma.user.findUnique({

@@ -33,8 +33,8 @@ export class GetUserProfileUseCase {
 
     if (userProfile.isPrivate) {
       const canViewProfile = await this.usersRepository.canViewProfile(
-        userId,
-        publicId
+        publicId, // profilePublicId
+        userId    // viewerPublicId
       )
       if (!canViewProfile) {
         throw new UserProfileIsPrivateError()
