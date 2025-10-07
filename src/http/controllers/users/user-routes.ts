@@ -14,9 +14,25 @@ import { uploadProfilePicture } from './upload-profile-picture'
 import { deleteProfilePicture } from './delete-profile-picture'
 import { toggleLikeComment, toggleLikePost } from './toggle-like'
 import { listUserContent } from './list-user-content'
+import { getMyProfile } from './get-my-profile'
+import { listMyContent } from './list-my-content'
 
 export async function userRoutes(app: FastifyInstance) {
   app.post('', register)
+
+  app.get('/profile/me', { preHandler: authentication }, getMyProfile)
+  app.get('/me/content', { preHandler: authentication }, listMyContent)
+
+  app.get(
+    '/profile/:publicId',
+    { preHandler: optionalAuthentication },
+    GetUserProfile
+  )
+  app.get(
+    '/:publicId/content',
+    { preHandler: optionalAuthentication },
+    listUserContent
+  )
 
   app.post(
     '/upload-profile-picture',
@@ -51,17 +67,6 @@ export async function userRoutes(app: FastifyInstance) {
   )
 
   app.patch('/update', { preHandler: authentication }, updateUser)
-
-  app.get(
-    '/profile/:publicId',
-    { preHandler: optionalAuthentication },
-    GetUserProfile
-  )
-  app.get(
-    '/:publicId/content',
-    { preHandler: optionalAuthentication },
-    listUserContent
-  )
 
   app.get('/followers', { preHandler: authentication }, listFollowers)
   app.get('/following', { preHandler: authentication }, listFollowing)
