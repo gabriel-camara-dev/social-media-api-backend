@@ -24,9 +24,11 @@ describe('GetProfileUseCase', () => {
       userId: user.publicId,
     })
 
-    expect(result.user.publicId).toBe(user.publicId)
+    expect(result.user.id).toBe(user.publicId)
     expect(result.user.name).toBe('Test User')
     expect(result.user.username).toBe('testuser')
+    expect(result.user.posts).toBeInstanceOf(Array)
+    expect(result.user.reposts).toBeInstanceOf(Array)
   })
 
   it('should throw ResourceNotFoundError when user does not exist', async () => {

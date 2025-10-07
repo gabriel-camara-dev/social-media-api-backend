@@ -9,7 +9,7 @@ class InMemoryUsersRepository implements UsersRepository {
   public items: User[] = []
   public follows: { followerId: string; followingId: string }[] = []
 
-  async findByUsername (username: string) {
+  async findByUsername(username: string) {
     return this.items.find((item) => item.username === username) || null
   }
 
@@ -184,17 +184,17 @@ class InMemoryUsersRepository implements UsersRepository {
   }
 
   async canViewProfile(
-    viewerPublicId: string | undefined,
-    profilePublicId: string
+    profilePublicId: string | undefined,
+    viewerPublicId: string | undefined
   ) {
-    if (!viewerPublicId) return false
-
     const profileUser = this.items.find(
       (item) => item.publicId === profilePublicId
     )
     if (!profileUser) return false
 
     if (!profileUser.isPrivate) return true
+
+    if (!viewerPublicId) return false
 
     if (viewerPublicId === profilePublicId) return true
 

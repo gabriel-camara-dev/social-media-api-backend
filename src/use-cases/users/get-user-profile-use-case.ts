@@ -25,26 +25,24 @@ export class GetUserProfileUseCase {
     userId,
     publicId,
   }: GetUserProfileUseCaseRequest): Promise<GetUserProfileUseCaseResponse> {
-    const canViewProfile = await this.usersRepository.canViewProfile(
-      publicId,
-      userId || ''
-    )
+    const userProfile = await this.usersRepository.getUserProfileInfo(publicId)
 
-    if (!canViewProfile && userId) {
-      const userProfile = await this.usersRepository.findByPublicId(publicId)
-      if (userProfile?.isPrivate) {
+    if (userProfile === null) {
+      throw new ResourceNotFoundError()
+    }
+
+    if (userProfile.isPrivate) {
+      const canViewProfile = await this.usersRepository.canViewProfile(
+        userId,
+        publicId
+      )
+      if (!canViewProfile) {
         throw new UserProfileIsPrivateError()
       }
     }
 
-    const user = await this.usersRepository.getUserProfileInfo(publicId)
-
-    if (user === null) {
-      throw new ResourceNotFoundError()
-    }
-
     return {
-      user: UserPresenter.toHTTPProfile(user),
+      user: UserPresenter.toHTTPProfile(userProfile),
     }
   }
 }

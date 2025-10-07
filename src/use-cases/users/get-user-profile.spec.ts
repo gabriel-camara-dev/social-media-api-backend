@@ -26,7 +26,7 @@ describe('GetUserProfileUseCase', () => {
       publicId: user.publicId,
     })
 
-    expect(result.user.publicId).toBe(user.publicId)
+    expect(result.user.id).toBe(user.publicId)
     expect(result.user.name).toBe('Public User')
     expect(result.user.username).toBe('publicuser')
   })
@@ -52,7 +52,7 @@ describe('GetUserProfileUseCase', () => {
       publicId: targetUser.publicId,
     })
 
-    expect(result.user.publicId).toBe(targetUser.publicId)
+    expect(result.user.id).toBe(targetUser.publicId)
   })
 
   it('should get private user profile when user is following', async () => {
@@ -81,7 +81,7 @@ describe('GetUserProfileUseCase', () => {
       publicId: targetUser.publicId,
     })
 
-    expect(result.user.publicId).toBe(targetUser.publicId)
+    expect(result.user.id).toBe(targetUser.publicId)
   })
 
   it('should throw UserProfileIsPrivateError when trying to view private profile without following', async () => {
