@@ -5,6 +5,7 @@ import { makeCreateCommentUseCase } from '../../../use-cases/factories/make-crea
 import { ResourceNotFoundError } from '../../../use-cases/errors/resource-not-found-error'
 import { CommentPresenter } from '../../presenters/comment-presenter'
 import { UploadService } from '../../../utils/upload'
+import { PostNotFoundError } from '../../../use-cases/errors/post-not-found-error'
 
 export async function createComment(
   request: FastifyRequest,
@@ -48,7 +49,7 @@ export async function createComment(
       comment: CommentPresenter.toHTTP(comment),
     })
   } catch (error: any) {
-    if (error instanceof ResourceNotFoundError) {
+    if (error instanceof ResourceNotFoundError || PostNotFoundError) {
       return reply.status(404).send({ message: error.message })
     }
 
