@@ -1,4 +1,8 @@
 import {
+  HTTPUserProfileInfo,
+  UserPresenter,
+} from '../../http/presenters/user-presenter'
+import {
   UserProfileInfo,
   UsersRepository,
 } from '../../repositories/users-repository'
@@ -11,7 +15,7 @@ interface GetUserProfileUseCaseRequest {
 }
 
 interface GetUserProfileUseCaseResponse {
-  user: UserProfileInfo
+  user: HTTPUserProfileInfo
 }
 
 export class GetUserProfileUseCase {
@@ -22,12 +26,15 @@ export class GetUserProfileUseCase {
     publicId,
   }: GetUserProfileUseCaseRequest): Promise<GetUserProfileUseCaseResponse> {
     const canViewProfile = await this.usersRepository.canViewProfile(
-      userId,
-      publicId
+      publicId,
+      userId || ''
     )
 
     if (!canViewProfile && userId) {
-      throw new UserProfileIsPrivateError()
+      const userProfile = await this.usersRepository.findByPublicId(publicId)
+      if (userProfile?.isPrivate) {
+        throw new UserProfileIsPrivateError()
+      }
     }
 
     const user = await this.usersRepository.getUserProfileInfo(publicId)
@@ -37,7 +44,7 @@ export class GetUserProfileUseCase {
     }
 
     return {
-      user,
+      user: UserPresenter.toHTTPProfile(user),
     }
   }
 }

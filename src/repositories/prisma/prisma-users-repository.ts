@@ -34,33 +34,18 @@ export class PrismaUsersRepository implements UsersRepository {
         followers: { select: { id: true } },
         following: { select: { id: true } },
         posts: {
-          select: {
-            publicId: true,
-            content: true,
-            likes: true,
-            createdAt: true,
-            updatedAt: true,
+          include: {
+            author: true,
           },
         },
         reposts: {
-          select: {
-            publicId: true,
-            createdAt: true,
+          include: {
+            user: true,
             post: {
-              select: {
-                content: true,
-                likes: true,
-                createdAt: true,
-                updatedAt: true,
-              },
+              include: { author: true },
             },
             comment: {
-              select: {
-                content: true,
-                likes: true,
-                createdAt: true,
-                updatedAt: true,
-              },
+              include: { author: true },
             },
           },
         },
@@ -83,20 +68,8 @@ export class PrismaUsersRepository implements UsersRepository {
       postsOrRepostsCount: user.posts.length + user.reposts.length,
       followersCount: user.followers.length,
       followingCount: user.following.length,
-      posts: user.posts.map((p) => ({
-        id: p.publicId,
-        content: p.content,
-        likes: p.likes,
-        createdAt: p.createdAt,
-        updatedAt: p.updatedAt,
-      })),
-      reposts: user.reposts.map((r) => ({
-        id: r.publicId,
-        content: r.post?.content ?? null,
-        likes: r.post?.likes ?? 0,
-        createdAt: r.createdAt,
-        updatedAt: r.post?.updatedAt ?? r.createdAt,
-      })),
+      posts: user.posts,
+      reposts: user.reposts,
     }
   }
 
@@ -117,33 +90,18 @@ export class PrismaUsersRepository implements UsersRepository {
         followers: { select: { id: true } },
         following: { select: { id: true } },
         posts: {
-          select: {
-            publicId: true,
-            content: true,
-            likes: true,
-            createdAt: true,
-            updatedAt: true,
+          include: {
+            author: true,
           },
         },
         reposts: {
-          select: {
-            publicId: true,
-            createdAt: true,
+          include: {
+            user: true,
             post: {
-              select: {
-                content: true,
-                likes: true,
-                createdAt: true,
-                updatedAt: true,
-              },
+              include: { author: true },
             },
             comment: {
-              select: {
-                content: true,
-                likes: true,
-                createdAt: true,
-                updatedAt: true,
-              },
+              include: { author: true },
             },
           },
         },
@@ -166,20 +124,8 @@ export class PrismaUsersRepository implements UsersRepository {
       postsOrRepostsCount: user.posts.length + user.reposts.length,
       followersCount: user.followers.length,
       followingCount: user.following.length,
-      posts: user.posts.map((p) => ({
-        id: p.publicId,
-        content: p.content,
-        likes: p.likes,
-        createdAt: p.createdAt,
-        updatedAt: p.updatedAt,
-      })),
-      reposts: user.reposts.map((r) => ({
-        id: r.publicId,
-        content: r.post?.content ?? null,
-        likes: r.post?.likes ?? 0,
-        createdAt: r.createdAt,
-        updatedAt: r.post?.updatedAt ?? r.createdAt,
-      })),
+      posts: user.posts,
+      reposts: user.reposts,
     }
   }
 

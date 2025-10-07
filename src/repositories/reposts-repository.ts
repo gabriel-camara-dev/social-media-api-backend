@@ -1,9 +1,14 @@
 import { Repost, Prisma } from '@prisma/client'
+import { RepostWithDetails } from '../http/presenters/repost-presenter'
 
 export interface RepostRepository {
   create: (data: Prisma.RepostUncheckedCreateInput) => Promise<Repost>
-  findById: (id: number) => Promise<Repost | null>
-  findByPublicId: (publicId: string) => Promise<Repost | null>
   delete: (id: number) => Promise<void>
-  update: (id: number, data: Prisma.RepostUpdateInput) => Promise<Repost>
+  findById: (id: number) => Promise<RepostWithDetails | null>
+  findByPublicId: (publicId: string) => Promise<RepostWithDetails | null>
+  findByUserAndContent: (
+    userId: string,
+    postId?: string,
+    commentId?: string
+  ) => Promise<Repost | null>
 }

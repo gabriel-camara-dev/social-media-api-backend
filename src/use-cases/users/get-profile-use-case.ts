@@ -1,4 +1,8 @@
 import {
+  HTTPUserProfileInfo,
+  UserPresenter,
+} from '../../http/presenters/user-presenter'
+import {
   UserProfileInfo,
   UsersRepository,
 } from '../../repositories/users-repository'
@@ -9,7 +13,7 @@ interface GetProfileUseCaseRequest {
 }
 
 interface GetProfileUseCaseResponse {
-  user: UserProfileInfo
+  user: HTTPUserProfileInfo
 }
 
 export class GetProfileUseCase {
@@ -25,8 +29,7 @@ export class GetProfileUseCase {
     }
 
     return {
-      user,
+      user: UserPresenter.toHTTPProfile(user),
     }
   }
 }
-

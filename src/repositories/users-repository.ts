@@ -3,6 +3,8 @@ import {
   HTTPUser,
   HTTPUserProfileInfo,
 } from '../http/presenters/user-presenter'
+import { RepostWithDetails } from '../http/presenters/repost-presenter'
+import { PostsWithAuthor } from './posts-repository'
 
 export interface FollowerOrFollowing {
   publicId: string
@@ -17,8 +19,11 @@ export type UserResponseData = Omit<HTTPUser, 'id'> & {
   publicId: string
 }
 
-export interface UserProfileInfo extends Omit<HTTPUserProfileInfo, 'id'> {
+export interface UserProfileInfo
+  extends Omit<HTTPUserProfileInfo, 'id' | 'posts' | 'reposts'> {
   publicId: string
+  posts: PostsWithAuthor[]
+  reposts: RepostWithDetails[]
 }
 export interface UsersRepository {
   create: (data: Prisma.UserCreateInput) => Promise<User>
