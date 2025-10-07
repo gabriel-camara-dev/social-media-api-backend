@@ -35,6 +35,7 @@ export class PrismaPostsRepository implements PostsRepository {
         "authorProfilePicture",
         (likes * 1.0 + comments * 1.5 + reposts * 2.0) / (EXTRACT(EPOCH FROM (NOW() - "createdAt")) / 3600 + 1) AS score
       FROM (
+        -- Seleciona todos os POSTS recentes
         SELECT
           p.public_id AS "publicId",
           'post' AS "type",
@@ -55,10 +56,11 @@ export class PrismaPostsRepository implements PostsRepository {
         LEFT JOIN reposts r ON r.post_id = p.public_id
         ${whereClause}
         AND p.created_at >= ${twoDaysAgo}
-        GROUP BY p.public_id, u.public_id
+        GROUP BY p.public_id, u.public_id, p.user_id, p.created_at, p.content, p.image, u.name, u.username, u.profile_picture
 
         UNION ALL
 
+        -- Seleciona todos os REPOSTS recentes
         SELECT
           r.public_id AS "publicId",
           'repost' AS "type",
@@ -80,7 +82,7 @@ export class PrismaPostsRepository implements PostsRepository {
         LEFT JOIN reposts orig_r ON orig_r.post_id = orig_p.public_id
         ${whereClause}
         AND r.created_at >= ${twoDaysAgo}
-        GROUP BY r.public_id, u.public_id, orig_p.content, orig_p.image
+        GROUP BY r.public_id, u.public_id, r.user_id, r.created_at, orig_p.content, orig_p.image, u.name, u.username, u.profile_picture
       ) AS feed_base
       ORDER BY score DESC
       LIMIT ${limit}
