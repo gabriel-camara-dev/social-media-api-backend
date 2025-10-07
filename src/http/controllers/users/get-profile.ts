@@ -1,6 +1,6 @@
 import { type FastifyRequest, type FastifyReply } from 'fastify'
-import { makeGetProfileUseCase } from '../../../use-cases/factories/make-get-profile-use-case'
 import { ResourceNotFoundError } from '../../../use-cases/errors/resource-not-found-error'
+import { makeGetUserProfileSummaryUseCase } from '../../../use-cases/factories/make-get-user-profile-summary-use-case'
 
 export async function GetProfile(
   request: FastifyRequest,
@@ -9,20 +9,21 @@ export async function GetProfile(
   const userId = request.userId
 
   if (!userId) {
-    return await reply.status(401).send({ message: 'Unauthorized' })
+    return reply.status(401).send({ message: 'Unauthorized' })
   }
 
   try {
-    const getProfileUseCase = makeGetProfileUseCase()
+    const getUserProfileSummaryUseCase = makeGetUserProfileSummaryUseCase()
 
-    const { user } = await getProfileUseCase.execute({
-      userId,
+    const { user } = await getUserProfileSummaryUseCase.execute({
+      publicId: userId,
+      viewerId: userId,
     })
 
-    return await reply.status(201).send({ user })
+    return reply.status(200).send({ user })
   } catch (err: unknown) {
     if (err instanceof ResourceNotFoundError) {
-      return await reply.status(404).send({ message: err.message })
+      return reply.status(404).send({ message: err.message })
     }
 
     throw err

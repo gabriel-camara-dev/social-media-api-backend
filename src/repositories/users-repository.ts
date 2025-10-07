@@ -19,12 +19,18 @@ export type UserResponseData = Omit<HTTPUser, 'id'> & {
   publicId: string
 }
 
-export interface UserProfileInfo
-  extends Omit<HTTPUserProfileInfo, 'id' | 'posts' | 'reposts'> {
+export interface UserProfileSummary
+  extends Omit<
+    HTTPUserProfileInfo,
+    'id' | 'posts' | 'reposts' | 'postsOrRepostsCount'
+  > {
   publicId: string
-  posts: PostsWithAuthor[]
-  reposts: RepostWithDetails[]
+  postsCount: number
+  repostsCount: number
 }
+
+export type UserContent = (PostsWithAuthor | RepostWithDetails)[]
+
 export interface UsersRepository {
   create: (data: Prisma.UserCreateInput) => Promise<User>
   findById: (id: number) => Promise<User | null>
@@ -34,8 +40,14 @@ export interface UsersRepository {
   setLastLogin: (id: number) => Promise<void>
   delete: (userId: string) => Promise<void>
   update: (publicId: string, data: Prisma.UserUpdateInput) => Promise<User>
-  getUserProfileInfo: (publicId: string) => Promise<UserProfileInfo | null>
-  getProfileInfo: (userId: number) => Promise<UserProfileInfo | null>
+
+  findProfileSummaryByPublicId: (
+    publicId: string
+  ) => Promise<UserProfileSummary | null>
+  findUserContentByPublicId: (
+    publicId: string,
+    options: { page: number; limit: number }
+  ) => Promise<UserContent>
 
   listFollowers: (publicId: string) => Promise<FollowerOrFollowing[]>
   listFollowing: (publicId: string) => Promise<FollowerOrFollowing[]>

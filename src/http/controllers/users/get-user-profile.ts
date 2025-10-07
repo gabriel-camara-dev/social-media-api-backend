@@ -1,8 +1,8 @@
 import { type FastifyRequest, type FastifyReply } from 'fastify'
 import { z } from 'zod'
-import { makeGetUserProfileUseCase } from '../../../use-cases/factories/make-get-user-profile-use-case'
 import { ResourceNotFoundError } from '../../../use-cases/errors/resource-not-found-error'
 import { UserProfileIsPrivateError } from '../../../use-cases/errors/user-profile-is-private-error'
+import { makeGetUserProfileSummaryUseCase } from '../../../use-cases/factories/make-get-user-profile-summary-use-case'
 
 export async function GetUserProfile(
   request: FastifyRequest,
@@ -15,23 +15,22 @@ export async function GetUserProfile(
     .parse(request.params)
 
   const { publicId } = GetUsersProfileParamsSchema
-
-  const userId = request.userId
+  const viewerId = request.userId
 
   try {
-    const getUserProfileUseCase = makeGetUserProfileUseCase()
+    const getUserProfileSummaryUseCase = makeGetUserProfileSummaryUseCase()
 
-    const { user } = await getUserProfileUseCase.execute({
-      userId,
+    const { user } = await getUserProfileSummaryUseCase.execute({
       publicId,
+      viewerId,
     })
 
-    return await reply.status(201).send({ user })
+    return reply.status(200).send({ user })
   } catch (err: unknown) {
     if (err instanceof UserProfileIsPrivateError) {
-      return await reply.status(403).send({ message: err.message })
+      return reply.status(403).send({ message: err.message })
     } else if (err instanceof ResourceNotFoundError) {
-      return await reply.status(404).send({ message: err.message })
+      return reply.status(404).send({ message: err.message })
     }
 
     throw err

@@ -1,13 +1,91 @@
 import { Prisma, User } from '@prisma/client'
 import {
-  UserProfileInfo,
-  UserResponseData,
+  UserProfileSummary,
+  UserContent,
   UsersRepository,
 } from '../users-repository'
 import { prisma } from '../../lib/prisma'
-import { UsernameAlreadyTakenError } from '../../use-cases/errors/username-already-taken'
 
 export class PrismaUsersRepository implements UsersRepository {
+  async findProfileSummaryByPublicId(
+    publicId: string
+  ): Promise<UserProfileSummary | null> {
+    const user = await prisma.user.findUnique({
+      where: { publicId },
+      select: {
+        publicId: true,
+        profilePicture: true,
+        name: true,
+        username: true,
+        description: true,
+        birthDate: true,
+        role: true,
+        isPrivate: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+            posts: true,
+            reposts: true,
+          },
+        },
+      },
+    })
+
+    if (!user) return null
+
+    return {
+      publicId: user.publicId,
+      profilePicture: user.profilePicture,
+      name: user.name,
+      username: user.username,
+      description: user.description,
+      birthDate: user.birthDate,
+      role: user.role,
+      isPrivate: user.isPrivate,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      followersCount: user._count.followers,
+      followingCount: user._count.following,
+      postsCount: user._count.posts,
+      repostsCount: user._count.reposts,
+    }
+  }
+
+  async findUserContentByPublicId(
+    publicId: string,
+    options: { page: number; limit: number }
+  ): Promise<UserContent> {
+    const { page, limit } = options
+    const skip = (page - 1) * limit
+
+    const posts = await prisma.posts.findMany({
+      where: { userId: publicId },
+      include: { author: true },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    const reposts = await prisma.repost.findMany({
+      where: { userId: publicId },
+      include: {
+        user: true,
+        post: { include: { author: true } },
+        comment: { include: { author: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    // Combina, ordena e pagina na aplicação.
+    // Para datasets muito grandes, uma raw query seria mais performática.
+    const content = [...posts, ...reposts]
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(skip, skip + limit)
+
+    return content
+  }
+
   async findByUsername(username: string) {
     const user = await prisma.user.findUnique({
       where: {
@@ -15,118 +93,6 @@ export class PrismaUsersRepository implements UsersRepository {
       },
     })
     return user
-  }
-
-  async getProfileInfo(userId: number): Promise<UserProfileInfo | null> {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        publicId: true,
-        profilePicture: true,
-        name: true,
-        username: true,
-        description: true,
-        birthDate: true,
-        role: true,
-        isPrivate: true,
-        createdAt: true,
-        updatedAt: true,
-        followers: { select: { id: true } },
-        following: { select: { id: true } },
-        posts: {
-          include: {
-            author: true,
-          },
-        },
-        reposts: {
-          include: {
-            user: true,
-            post: {
-              include: { author: true },
-            },
-            comment: {
-              include: { author: true },
-            },
-          },
-        },
-      },
-    })
-
-    if (!user) return null
-
-    return {
-      publicId: user.publicId,
-      profilePicture: user.profilePicture,
-      name: user.name,
-      username: user.username,
-      description: user.description,
-      birthDate: user.birthDate,
-      role: user.role,
-      isPrivate: user.isPrivate,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      postsOrRepostsCount: user.posts.length + user.reposts.length,
-      followersCount: user.followers.length,
-      followingCount: user.following.length,
-      posts: user.posts,
-      reposts: user.reposts,
-    }
-  }
-
-  async getUserProfileInfo(publicId: string): Promise<UserProfileInfo | null> {
-    const user = await prisma.user.findUnique({
-      where: { publicId },
-      select: {
-        publicId: true,
-        name: true,
-        username: true,
-        profilePicture: true,
-        description: true,
-        birthDate: true,
-        role: true,
-        isPrivate: true,
-        createdAt: true,
-        updatedAt: true,
-        followers: { select: { id: true } },
-        following: { select: { id: true } },
-        posts: {
-          include: {
-            author: true,
-          },
-        },
-        reposts: {
-          include: {
-            user: true,
-            post: {
-              include: { author: true },
-            },
-            comment: {
-              include: { author: true },
-            },
-          },
-        },
-      },
-    })
-
-    if (!user) return null
-
-    return {
-      publicId: user.publicId,
-      profilePicture: user.profilePicture,
-      name: user.name,
-      username: user.username,
-      description: user.description,
-      birthDate: user.birthDate,
-      role: user.role,
-      isPrivate: user.isPrivate,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      postsOrRepostsCount: user.posts.length + user.reposts.length,
-      followersCount: user.followers.length,
-      followingCount: user.following.length,
-      posts: user.posts,
-      reposts: user.reposts,
-    }
   }
 
   async listFollowers(publicId: string) {
@@ -211,7 +177,7 @@ export class PrismaUsersRepository implements UsersRepository {
   async togglePrivateProfile(publicId: string) {
     const user = await prisma.user.findFirst({ where: { publicId } })
 
-    if (user?.isPrivate == true) {
+    if (user?.isPrivate === true) {
       await prisma.user.update({
         where: { publicId },
         data: { isPrivate: false },

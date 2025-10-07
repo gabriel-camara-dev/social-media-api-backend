@@ -1,7 +1,7 @@
 import { type FastifyRequest, type FastifyReply } from 'fastify'
 import { z } from 'zod'
-import { ResourceNotFoundError } from '../../use-cases/errors/resource-not-found-error'
-import { makeToggleRepostUseCase } from '../../use-cases/factories/make-toggle-repost-use-case'
+import { ResourceNotFoundError } from '../../../use-cases/errors/resource-not-found-error'
+import { makeToggleRepostUseCase } from '../../../use-cases/factories/make-toggle-repost-use-case'
 
 export async function toggleRepost(
   request: FastifyRequest,

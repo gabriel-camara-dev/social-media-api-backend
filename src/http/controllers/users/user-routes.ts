@@ -14,6 +14,7 @@ import { upload } from '../../../lib/multer'
 import { uploadProfilePicture } from './upload-profile-picture'
 import { deleteProfilePicture } from './delete-profile-picture'
 import { toggleLikeComment, toggleLikePost } from './toggle-like'
+import { listUserContent } from './list-user-content'
 
 export async function userRoutes(app: FastifyInstance) {
   app.post('', register)
@@ -56,6 +57,11 @@ export async function userRoutes(app: FastifyInstance) {
     '/profile/:publicId',
     { preHandler: optionalAuthentication },
     GetUserProfile
+  )
+  app.get(
+    '/:publicId/content',
+    { preHandler: optionalAuthentication },
+    listUserContent
   )
   app.get('/profile', { preHandler: authentication }, GetProfile)
 

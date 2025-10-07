@@ -1,13 +1,85 @@
-import { Prisma, User } from '@prisma/client'
+import { Post, Prisma, Repost, User } from '@prisma/client'
 import {
   FollowerOrFollowing,
-  UserProfileInfo,
+  UserContent,
+  UserProfileSummary,
   UsersRepository,
 } from '../users-repository'
+import { InMemoryPostsRepository } from './in-memory-posts-repository'
+import { InMemoryRepostsRepository } from './in-memory-reposts-repository'
 
-class InMemoryUsersRepository implements UsersRepository {
+export class InMemoryUsersRepository implements UsersRepository {
   public items: User[] = []
   public follows: { followerId: string; followingId: string }[] = []
+  // Adicionamos os repositórios de conteúdo para simular as contagens
+  public postsRepository: InMemoryPostsRepository
+  public repostsRepository: InMemoryRepostsRepository
+
+  constructor() {
+    this.postsRepository = new InMemoryPostsRepository()
+    this.repostsRepository = new InMemoryRepostsRepository()
+  }
+
+  async findProfileSummaryByPublicId(
+    publicId: string
+  ): Promise<UserProfileSummary | null> {
+    const user = this.items.find((item) => item.publicId === publicId)
+    if (!user) return null
+
+    const followers = this.follows.filter((f) => f.followingId === publicId)
+    const following = this.follows.filter((f) => f.followerId === publicId)
+    const posts = this.postsRepository.items.filter(
+      (p) => p.userId === publicId
+    )
+    const reposts = this.repostsRepository.items.filter(
+      (r) => r.userId === publicId
+    )
+
+    return {
+      publicId: user.publicId,
+      profilePicture: user.profilePicture,
+      name: user.name,
+      username: user.username,
+      description: user.description,
+      birthDate: user.birthDate || null,
+      role: user.role,
+      isPrivate: user.isPrivate,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      followersCount: followers.length,
+      followingCount: following.length,
+      postsCount: posts.length,
+      repostsCount: reposts.length,
+    }
+  }
+
+  async findUserContentByPublicId(
+    publicId: string,
+    options: { page: number; limit: number }
+  ): Promise<UserContent> {
+    const { page, limit } = options
+    const skip = (page - 1) * limit
+
+    const posts = await this.postsRepository.items
+      .filter((p) => p.userId === publicId)
+      .map(async (p) => await this.postsRepository.findByPublicId(p.publicId))
+
+    const reposts = await this.repostsRepository.items
+      .filter((r) => r.userId === publicId)
+      .map(
+        async (r) => await this.repostsRepository.findByPublicId(r.publicId)
+      )
+
+    const resolvedPosts = await Promise.all(posts)
+    const resolvedReposts = await Promise.all(reposts)
+
+    const content = [...resolvedPosts, ...resolvedReposts]
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(skip, skip + limit)
+
+    return content
+  }
 
   async findByUsername(username: string) {
     return this.items.find((item) => item.username === username) || null
@@ -86,39 +158,6 @@ class InMemoryUsersRepository implements UsersRepository {
     return user
   }
 
-  async getUserProfileInfo(publicId: string): Promise<UserProfileInfo | null> {
-    const user = this.items.find((item) => item.publicId === publicId)
-    if (!user) return null
-
-    const followers = this.follows.filter((f) => f.followingId === publicId)
-    const following = this.follows.filter((f) => f.followerId === publicId)
-
-    return {
-      publicId: user.publicId,
-      profilePicture: user.profilePicture,
-      name: user.name,
-      username: user.username,
-      description: user.description,
-      birthDate: user.birthDate || null,
-      role: user.role,
-      isPrivate: user.isPrivate,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      postsOrRepostsCount: 0,
-      followersCount: followers.length,
-      followingCount: following.length,
-      posts: [],
-      reposts: [],
-    }
-  }
-
-  async getProfileInfo(userId: number): Promise<UserProfileInfo | null> {
-    const user = this.items.find((item) => item.id === userId)
-    if (!user) return null
-
-    return this.getUserProfileInfo(user.publicId)
-  }
-
   async listFollowers(publicId: string): Promise<FollowerOrFollowing[]> {
     const followers = this.follows.filter((f) => f.followingId === publicId)
 
@@ -187,6 +226,7 @@ class InMemoryUsersRepository implements UsersRepository {
     profilePublicId: string | undefined,
     viewerPublicId: string | undefined
   ) {
+    if (!profilePublicId) return false
     const profileUser = this.items.find(
       (item) => item.publicId === profilePublicId
     )
@@ -206,5 +246,3 @@ class InMemoryUsersRepository implements UsersRepository {
     return isFollowing
   }
 }
-
-export { InMemoryUsersRepository }

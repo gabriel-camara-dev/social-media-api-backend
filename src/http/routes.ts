@@ -5,7 +5,7 @@ import { authenticate } from './controllers/users/authenticate'
 import { refreshToken } from './controllers/users/refresh-token'
 import { logout } from './controllers/users/logout'
 import { commentsRoutes } from './controllers/comments/comments-routes'
-import { repostsRoutes } from './reposts/repost-routes'
+import { repostsRoutes } from './controllers/reposts/repost-routes'
 
 export async function appRoutes(app: FastifyInstance) {
   app.post('/sessions', authenticate)
