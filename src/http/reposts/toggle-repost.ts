@@ -7,12 +7,12 @@ export async function toggleRepost(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  const toggleRepostParamsSchema = z.object({
+  const toggleRepostBodySchema = z.object({
     postId: z.string().uuid().optional(),
     commentId: z.string().uuid().optional(),
   })
 
-  const { postId, commentId } = toggleRepostParamsSchema.parse(request.params)
+  const { postId, commentId } = toggleRepostBodySchema.parse(request.body)
 
   const userId = request.userId
   if (!userId) {
