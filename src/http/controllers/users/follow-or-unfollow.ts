@@ -1,44 +1,44 @@
-import { UsersRepository } from '../../../repositories/users-repository'
-import { CantFollowYourselfError } from '../../../use-cases/errors/cant-follow-yourself-error'
+import { FastifyRequest, FastifyReply } from 'fastify'
+import { z } from 'zod'
+import { makeFollowOrUnfollowUseCase } from '../../../use-cases/factories/make-follow-or-unfollow-use-case'
 import { ResourceNotFoundError } from '../../../use-cases/errors/resource-not-found-error'
-import { NotificationService } from '../../../use-cases/services/notification-service'
+import { CantFollowYourselfError } from '../../../use-cases/errors/cant-follow-yourself-error'
 
-interface FollowOrUnfollowUseCaseRequest {
-  followerId: string
-  followingId: string
-}
+export async function followOrUnfollow(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const followOrUnfollowParamsSchema = z.object({
+    publicId: z.string().uuid(),
+  })
 
-export class FollowOrUnfollowUseCase {
-  constructor(
-    private readonly usersRepository: UsersRepository,
-    private readonly notificationService: NotificationService
-  ) {}
+  const { publicId: followingId } = followOrUnfollowParamsSchema.parse(
+    request.params
+  )
 
-  async execute({
-    followerId,
-    followingId,
-  }: FollowOrUnfollowUseCaseRequest): Promise<void> {
-    if (followerId === followingId) {
-      throw new CantFollowYourselfError()
-    }
+  const followerId = request.userId
 
-    const following = await this.usersRepository.findByPublicId(followingId)
-    const follower = await this.usersRepository.findByPublicId(followerId)
+  if (!followerId) {
+    return reply.status(401).send({ message: 'Unauthorized' })
+  }
 
-    if (following === null || follower === null) {
-      throw new ResourceNotFoundError()
-    }
+  try {
+    const followOrUnfollowUseCase = makeFollowOrUnfollowUseCase()
 
-    const isFollowing = await this.usersRepository.followOrUnfollowUser(
+    await followOrUnfollowUseCase.execute({
       followerId,
-      followingId
-    )
+      followingId,
+    })
 
-    if (isFollowing) {
-      await this.notificationService.createFollowNotification(
-        followingId,
-        followerId
-      )
+    return reply.status(204).send()
+  } catch (error: any) {
+    if (
+      error instanceof ResourceNotFoundError ||
+      error instanceof CantFollowYourselfError
+    ) {
+      return reply.status(400).send({ message: error.message })
     }
+
+    throw error
   }
 }

@@ -1,9 +1,7 @@
-import {
-  UserProfileInfo,
-  UsersRepository,
-} from '../../repositories/users-repository'
+import { UsersRepository } from '../../repositories/users-repository'
 import { CantFollowYourselfError } from '../errors/cant-follow-yourself-error'
 import { ResourceNotFoundError } from '../errors/resource-not-found-error'
+import { NotificationService } from '../services/notification-service'
 
 interface FollowOrUnfollowUseCaseRequest {
   followerId: string
@@ -11,7 +9,10 @@ interface FollowOrUnfollowUseCaseRequest {
 }
 
 export class FollowOrUnfollowUseCase {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(
+    private readonly usersRepository: UsersRepository,
+    private readonly notificationService: NotificationService
+  ) {}
 
   async execute({
     followerId,
@@ -20,7 +21,7 @@ export class FollowOrUnfollowUseCase {
     if (followerId === followingId) {
       throw new CantFollowYourselfError()
     }
-    
+
     const following = await this.usersRepository.findByPublicId(followingId)
     const follower = await this.usersRepository.findByPublicId(followerId)
 
@@ -28,6 +29,16 @@ export class FollowOrUnfollowUseCase {
       throw new ResourceNotFoundError()
     }
 
-    await this.usersRepository.followOrUnfollowUser(followerId, followingId)
+    const isFollowing = await this.usersRepository.followOrUnfollowUser(
+      followerId,
+      followingId
+    )
+
+    if (isFollowing) {
+      await this.notificationService.createFollowNotification(
+        followingId,
+        followerId
+      )
+    }
   }
 }
