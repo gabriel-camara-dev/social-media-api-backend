@@ -4,7 +4,7 @@ import { LikeRepository } from '../like-repository'
 export class InMemoryLikeRepository implements LikeRepository {
   public items: Like[] = []
 
-  async toggleLikePost(userId: string, postId: string): Promise<void> {
+  async toggleLikePost(userId: string, postId: string): Promise<boolean> {
     const existingLikeIndex = this.items.findIndex(
       (item) =>
         item.userId === userId &&
@@ -14,6 +14,7 @@ export class InMemoryLikeRepository implements LikeRepository {
 
     if (existingLikeIndex !== -1) {
       this.items.splice(existingLikeIndex, 1)
+      return false
     } else {
       const like: Like = {
         id: this.items.length + 1,
@@ -24,10 +25,11 @@ export class InMemoryLikeRepository implements LikeRepository {
       }
 
       this.items.push(like)
+      return true
     }
   }
 
-  async toggleLikeComment(userId: string, commentId: string): Promise<void> {
+  async toggleLikeComment(userId: string, commentId: string): Promise<boolean> {
     const existingLikeIndex = this.items.findIndex(
       (item) =>
         item.userId === userId &&
@@ -37,6 +39,7 @@ export class InMemoryLikeRepository implements LikeRepository {
 
     if (existingLikeIndex !== -1) {
       this.items.splice(existingLikeIndex, 1)
+      return false
     } else {
       const like: Like = {
         id: this.items.length + 1,
@@ -47,6 +50,7 @@ export class InMemoryLikeRepository implements LikeRepository {
       }
 
       this.items.push(like)
+      return true
     }
   }
 }
