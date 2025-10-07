@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify'
 import { register } from './register'
-import { GetProfile } from './get-profile'
 import { GetUserProfile } from './get-user-profile'
 import { authentication } from '../../../middlewares/authentication'
 import { followOrUnfollow } from './follow-or-unfollow'
@@ -63,7 +62,6 @@ export async function userRoutes(app: FastifyInstance) {
     { preHandler: optionalAuthentication },
     listUserContent
   )
-  app.get('/profile', { preHandler: authentication }, GetProfile)
 
   app.get('/followers', { preHandler: authentication }, listFollowers)
   app.get('/following', { preHandler: authentication }, listFollowing)
