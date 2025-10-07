@@ -5,8 +5,12 @@ import { updatePost } from './update-post'
 import { deletePost } from './delete-post'
 import { listPost } from './list-post'
 import { upload } from '../../../lib/multer'
+import { getFeed } from './get-feed'
+import { optionalAuthentication } from '../../../middlewares/optional-authentication'
 
 export async function postsRoutes(app: FastifyInstance) {
+  app.get('/feed', { preHandler: optionalAuthentication }, getFeed)
+
   app.post(
     '/',
     {
