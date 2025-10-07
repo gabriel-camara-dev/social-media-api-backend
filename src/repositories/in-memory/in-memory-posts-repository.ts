@@ -1,5 +1,6 @@
 import { Posts, Prisma, User, Comment } from '@prisma/client'
 import {
+  FeedItem,
   PostsRepository,
   PostsWithAuthor,
   PostWithComments,
@@ -9,6 +10,14 @@ import { CommentWithAuthorAndReplies } from '../../http/presenters/comment-prese
 export class InMemoryPostsRepository implements PostsRepository {
   public items: Posts[] = []
   public comments: Comment[] = []
+
+  async findManyByRelevance(options: {
+    page: number
+    limit: number
+    followedUserIds?: string[]
+  }): Promise<FeedItem[]> {
+    return []
+  }
 
   async create(
     data: Prisma.PostsUncheckedCreateInput
