@@ -21,39 +21,27 @@ export class ToggleLikeUseCase {
   ) {}
 
   async execute({ userId, postId, commentId }: ToggleLikeUseCaseRequest) {
+    let wasLiked = false
+
     if (postId) {
       const post = await this.postsRepository.findByPublicId(postId)
       if (!post) throw new PostNotFoundError()
-
-      const wasLiked = await this.likesRepository.toggleLikePost(userId, postId)
-
-      if (wasLiked && post.author.publicId !== userId) {
-        await this.notificationService.create({
-          type: 'LIKE',
-          recipientId: post.author.publicId,
-          actorId: userId,
-          postId,
-        })
-      }
+      wasLiked = await this.likesRepository.toggleLikePost(userId, postId)
     } else if (commentId) {
       const comment = await this.commentsRepository.findByPublicId(commentId)
       if (!comment) throw new CommentNotFoundError()
-
-      const wasLiked = await this.likesRepository.toggleLikeComment(
-        userId,
-        commentId
-      )
-
-      if (wasLiked && comment.author.publicId !== userId) {
-        await this.notificationService.create({
-          type: 'LIKE',
-          recipientId: comment.author.publicId,
-          actorId: userId,
-          commentId,
-        })
-      }
+      wasLiked = await this.likesRepository.toggleLikeComment(userId, commentId)
     } else {
       throw new ResourceNotFoundError()
+    }
+
+    if (wasLiked) {
+      await this.notificationService.create({
+        type: 'LIKE',
+        actorId: userId,
+        postId,
+        commentId,
+      })
     }
   }
 }

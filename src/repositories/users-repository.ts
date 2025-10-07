@@ -54,7 +54,7 @@ export interface UsersRepository {
   followOrUnfollowUser: (
     followerId: string,
     followingId: string
-  ) => Promise<void>
+  ) => Promise<boolean>
 
   togglePrivateProfile: (publicId: string) => Promise<void>
   canViewProfile: (

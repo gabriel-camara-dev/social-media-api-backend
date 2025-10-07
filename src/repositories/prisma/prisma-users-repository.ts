@@ -77,8 +77,6 @@ export class PrismaUsersRepository implements UsersRepository {
       orderBy: { createdAt: 'desc' },
     })
 
-    // Combina, ordena e pagina na aplicação.
-    // Para datasets muito grandes, uma raw query seria mais performática.
     const content = [...posts, ...reposts]
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(skip, skip + limit)
@@ -142,35 +140,27 @@ export class PrismaUsersRepository implements UsersRepository {
   async followOrUnfollowUser(
     followerPublicId: string,
     followingPublicId: string
-  ): Promise<void> {
-    const follower = await prisma.user.findUnique({
-      where: { publicId: followerPublicId },
-      select: { publicId: true },
-    })
-    const following = await prisma.user.findUnique({
-      where: { publicId: followingPublicId },
-      select: { publicId: true },
-    })
-    if (!follower || !following) return
-
+  ): Promise<boolean> {
     const existingFollow = await prisma.follow.findUnique({
       where: {
         followerId_followingId: {
-          followerId: follower.publicId,
-          followingId: following.publicId,
+          followerId: followerPublicId,
+          followingId: followingPublicId,
         },
       },
     })
 
     if (existingFollow) {
       await prisma.follow.delete({ where: { id: existingFollow.id } })
+      return false
     } else {
       await prisma.follow.create({
         data: {
-          followerId: follower.publicId,
-          followingId: following.publicId,
+          followerId: followerPublicId,
+          followingId: followingPublicId,
         },
       })
+      return true
     }
   }
 

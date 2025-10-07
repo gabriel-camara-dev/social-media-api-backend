@@ -1,4 +1,4 @@
-import { Notification, Prisma } from '@prisma/client'
+import { Notification, NotificationType, Prisma } from '@prisma/client'
 import {
   NotificationsRepository,
   NotificationWithActors,
@@ -31,7 +31,7 @@ export class PrismaNotificationsRepository implements NotificationsRepository {
 
   async findGroupableNotification(
     recipientId: string,
-    type: 'LIKE' | 'REPOST',
+    type: 'LIKE' | 'REPOST' | 'FOLLOW',
     postId?: string,
     commentId?: string
   ): Promise<Notification | null> {

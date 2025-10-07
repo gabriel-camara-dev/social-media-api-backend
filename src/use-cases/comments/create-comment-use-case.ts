@@ -6,6 +6,7 @@ import { PostsRepository } from '../../repositories/posts-repository'
 import { UsersRepository } from '../../repositories/users-repository'
 import { PostNotFoundError } from '../errors/post-not-found-error'
 import { ResourceNotFoundError } from '../errors/resource-not-found-error'
+import { NotificationService } from '../services/notification-service'
 
 interface CreateCommentUseCaseRequest {
   authorId: string
@@ -23,7 +24,8 @@ export class CreateCommentUseCase {
   constructor(
     private readonly commentsRepository: CommentRepository,
     private readonly usersRepository: UsersRepository,
-    private readonly postsRepository: PostsRepository
+    private readonly postsRepository: PostsRepository,
+    private readonly notificationService: NotificationService
   ) {}
 
   async execute({
@@ -38,7 +40,7 @@ export class CreateCommentUseCase {
 
     const post = await this.postsRepository.findByPublicId(postId)
     if (!post) throw new PostNotFoundError()
-      
+
     const comment = await this.commentsRepository.create({
       authorId,
       postId,
@@ -46,6 +48,20 @@ export class CreateCommentUseCase {
       parentId: parentId || null,
       image: image || null,
     })
+
+    if (parentId) {
+      await this.notificationService.create({
+        type: 'REPLY',
+        actorId: authorId,
+        commentId: parentId,
+      })
+    } else {
+      await this.notificationService.create({
+        type: 'COMMENT',
+        actorId: authorId,
+        postId,
+      })
+    }
 
     return {
       comment,
