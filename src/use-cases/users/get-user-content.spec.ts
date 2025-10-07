@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { InMemoryUsersRepository } from '../../repositories/in-memory/in-memory-users-repository'
 import { GetUserContentUseCase } from './get-user-content-use-case'
 import { InMemoryPostsRepository } from '../../repositories/in-memory/in-memory-posts-repository'
+import { InMemoryRepostsRepository } from '../../repositories/in-memory/in-memory-reposts-repository'
 
 describe('GetUserContentUseCase', () => {
   let usersRepository: InMemoryUsersRepository
@@ -13,7 +14,6 @@ describe('GetUserContentUseCase', () => {
     usersRepository = new InMemoryUsersRepository()
     postsRepository = usersRepository.postsRepository
     repostsRepository = usersRepository.repostsRepository
-
     useCase = new GetUserContentUseCase(usersRepository)
   })
 
@@ -81,7 +81,7 @@ describe('GetUserContentUseCase', () => {
 
     expect(page1).toHaveLength(2)
     expect(page2).toHaveLength(2)
-    expect(page1[0].content).toBe('Post 4')
-    expect(page2[0].content).toBe('Post 2')
+    expect((page1[0] as any).content).toBe('Post 4')
+    expect((page2[0] as any).content).toBe('Post 2')
   })
 })

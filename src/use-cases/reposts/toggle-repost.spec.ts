@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { InMemoryRepostsRepository } from '../../repositories/in-memory/in-memory-reposts-repository'
 import { ToggleRepostUseCase } from './toggle-repost-use-case'
 import { ResourceNotFoundError } from '../errors/resource-not-found-error'
+import { InMemoryRepostsRepository } from '../../repositories/in-memory/in-memory-reposts-repository'
 
 describe('ToggleRepostUseCase', () => {
   let repostsRepository: InMemoryRepostsRepository

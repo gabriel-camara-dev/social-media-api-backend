@@ -5,12 +5,19 @@ import {
   UserProfileSummary,
   UsersRepository,
 } from '../users-repository'
+import { InMemoryPostsRepository } from './in-memory-posts-repository'
+import { InMemoryRepostsRepository } from './in-memory-reposts-repository'
 
 export class InMemoryUsersRepository implements UsersRepository {
   public items: User[] = []
   public follows: { followerId: string; followingId: string }[] = []
-  // As dependências dos repos de posts e reposts foram removidas
-  // para simplificar, já que não eram mais usadas para contagem.
+  public postsRepository: InMemoryPostsRepository
+  public repostsRepository: InMemoryRepostsRepository
+
+  constructor() {
+    this.postsRepository = new InMemoryPostsRepository()
+    this.repostsRepository = new InMemoryRepostsRepository()
+  }
 
   async findProfileSummaryByPublicId(
     publicId: string
@@ -21,10 +28,13 @@ export class InMemoryUsersRepository implements UsersRepository {
     const followers = this.follows.filter((f) => f.followingId === publicId)
     const following = this.follows.filter((f) => f.followerId === publicId)
 
-    // A contagem de posts e reposts será 0 nos testes de unidade
-    // focados no repositório de usuário.
-    // Testes de integração ou testes de use case que precisam dessa contagem
-    // devem popular os repositórios de posts/reposts separadamente.
+    const postsCount = this.postsRepository.items.filter(
+      (p) => p.userId === publicId
+    ).length
+    const repostsCount = this.repostsRepository.items.filter(
+      (r) => r.userId === publicId
+    ).length
+
     return {
       publicId: user.publicId,
       profilePicture: user.profilePicture,
@@ -38,8 +48,8 @@ export class InMemoryUsersRepository implements UsersRepository {
       updatedAt: user.updatedAt,
       followersCount: followers.length,
       followingCount: following.length,
-      postsCount: 0,
-      repostsCount: 0,
+      postsCount,
+      repostsCount,
     }
   }
 
@@ -47,10 +57,29 @@ export class InMemoryUsersRepository implements UsersRepository {
     publicId: string,
     options: { page: number; limit: number }
   ): Promise<UserContent> {
-    // Retorna um array vazio pois o foco deste repo é o usuário.
-    // Testes que precisam de conteúdo devem mockar este método ou usar
-    // um setup mais complexo.
-    return []
+    const { page, limit } = options
+    const skip = (page - 1) * limit
+
+    const posts = await Promise.all(
+      this.postsRepository.items
+        .filter((p) => p.userId === publicId)
+        .map(async (p) => await this.postsRepository.findByPublicId(p.publicId))
+    )
+
+    const reposts = await Promise.all(
+      this.repostsRepository.items
+        .filter((r) => r.userId === publicId)
+        .map(
+          async (r) => await this.repostsRepository.findByPublicId(r.publicId)
+        )
+    )
+
+    const content = [...posts, ...reposts]
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(skip, skip + limit)
+
+    return content
   }
 
   async findByUsername(username: string) {
