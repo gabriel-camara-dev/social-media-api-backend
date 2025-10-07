@@ -4,7 +4,7 @@ import { LikeRepository } from '../like-repository'
 const prisma = new PrismaClient()
 
 export class PrismaLikeRepository implements LikeRepository {
-  async toggleLikePost(userId: string, postId: string): Promise<void> {
+  async toggleLikePost(userId: string, postId: string): Promise<boolean> {
     const existingLike = await prisma.like.findFirst({
       where: {
         userId,
@@ -19,6 +19,7 @@ export class PrismaLikeRepository implements LikeRepository {
           id: existingLike.id,
         },
       })
+      return false
     } else {
       await prisma.like.create({
         data: {
@@ -26,10 +27,11 @@ export class PrismaLikeRepository implements LikeRepository {
           postId,
         },
       })
+      return true
     }
   }
 
-  async toggleLikeComment(userId: string, commentId: string): Promise<void> {
+  async toggleLikeComment(userId: string, commentId: string): Promise<boolean> {
     const existingLike = await prisma.like.findFirst({
       where: {
         userId,
@@ -44,6 +46,7 @@ export class PrismaLikeRepository implements LikeRepository {
           id: existingLike.id,
         },
       })
+      return false
     } else {
       await prisma.like.create({
         data: {
@@ -51,6 +54,7 @@ export class PrismaLikeRepository implements LikeRepository {
           commentId,
         },
       })
+      return true
     }
   }
 }
