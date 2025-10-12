@@ -11,7 +11,7 @@ interface FollowOrUnfollowUseCaseRequest {
 export class FollowOrUnfollowUseCase {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly notificationService: NotificationService
+    private readonly notificationService?: NotificationService
   ) {}
 
   async execute({
@@ -35,7 +35,7 @@ export class FollowOrUnfollowUseCase {
     )
 
     if (isFollowing) {
-      await this.notificationService.createFollowNotification(
+      await this.notificationService?.createFollowNotification(
         followingId,
         followerId
       )

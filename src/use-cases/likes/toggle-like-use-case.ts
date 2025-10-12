@@ -17,7 +17,7 @@ export class ToggleLikeUseCase {
     private readonly postsRepository: PostsRepository,
     private readonly likesRepository: LikeRepository,
     private readonly commentsRepository: CommentRepository,
-    private readonly notificationService: NotificationService
+    private readonly notificationService?: NotificationService
   ) {}
 
   async execute({ userId, postId, commentId }: ToggleLikeUseCaseRequest) {
@@ -36,7 +36,7 @@ export class ToggleLikeUseCase {
     }
 
     if (wasLiked) {
-      await this.notificationService.create({
+      await this.notificationService?.create({
         type: 'LIKE',
         actorId: userId,
         postId,

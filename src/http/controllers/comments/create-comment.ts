@@ -49,7 +49,10 @@ export async function createComment(
       comment: CommentPresenter.toHTTP(comment),
     })
   } catch (error: any) {
-    if (error instanceof ResourceNotFoundError || PostNotFoundError) {
+    if (
+      error instanceof ResourceNotFoundError ||
+      error instanceof PostNotFoundError
+    ) {
       return reply.status(404).send({ message: error.message })
     }
 

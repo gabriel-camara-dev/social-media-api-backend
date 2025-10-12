@@ -25,7 +25,7 @@ export class CreateCommentUseCase {
     private readonly commentsRepository: CommentRepository,
     private readonly usersRepository: UsersRepository,
     private readonly postsRepository: PostsRepository,
-    private readonly notificationService: NotificationService
+    private readonly notificationService?: NotificationService
   ) {}
 
   async execute({
@@ -50,13 +50,13 @@ export class CreateCommentUseCase {
     })
 
     if (parentId) {
-      await this.notificationService.create({
+      await this.notificationService?.create({
         type: 'REPLY',
         actorId: authorId,
         commentId: parentId,
       })
     } else {
-      await this.notificationService.create({
+      await this.notificationService?.create({
         type: 'COMMENT',
         actorId: authorId,
         postId,
