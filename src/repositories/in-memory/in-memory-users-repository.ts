@@ -203,15 +203,20 @@ export class InMemoryUsersRepository implements UsersRepository {
       .filter(Boolean) as FollowerOrFollowing[]
   }
 
-  async followOrUnfollowUser(followerId: string, followingId: string) {
+  async followOrUnfollowUser(
+    followerId: string,
+    followingId: string
+  ): Promise<boolean> {
     const existingIndex = this.follows.findIndex(
       (f) => f.followerId === followerId && f.followingId === followingId
     )
 
     if (existingIndex !== -1) {
       this.follows.splice(existingIndex, 1)
+      return false
     } else {
       this.follows.push({ followerId, followingId })
+      return true
     }
   }
 
