@@ -35,7 +35,6 @@ export class PrismaPostsRepository implements PostsRepository {
         "authorProfilePicture",
         (likes * 1.0 + comments * 1.5 + reposts * 2.0) / (EXTRACT(EPOCH FROM (NOW() - "createdAt")) / 3600 + 1) AS score
       FROM (
-        -- Seleciona todos os POSTS recentes
         SELECT
           p.public_id AS "publicId",
           'post' AS "type",
@@ -59,8 +58,7 @@ export class PrismaPostsRepository implements PostsRepository {
         GROUP BY p.public_id, u.public_id, p.user_id, p.created_at, p.content, p.image, u.name, u.username, u.profile_picture
 
         UNION ALL
-
-        -- Seleciona todos os REPOSTS recentes
+        
         SELECT
           r.public_id AS "publicId",
           'repost' AS "type",
