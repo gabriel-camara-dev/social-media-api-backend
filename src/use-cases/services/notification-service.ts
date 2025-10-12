@@ -24,7 +24,7 @@ export class NotificationService {
     commentId,
   }: CreateContentNotificationRequest) {
     let recipientId: string | undefined
-
+    
     if (postId) {
       const post = await this.postsRepository.findByPublicId(postId)
       recipientId = post?.author.publicId
@@ -32,7 +32,6 @@ export class NotificationService {
       const comment = await this.commentsRepository.findByPublicId(commentId)
       recipientId = comment?.author.publicId
     }
-
     if (!recipientId || recipientId === actorId) return
 
     pushNotification(recipientId, { type, postId, commentId, actorId })

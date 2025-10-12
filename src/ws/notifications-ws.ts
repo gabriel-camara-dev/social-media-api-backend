@@ -1,4 +1,3 @@
-import fp from 'fastify-plugin'
 import websocket from '@fastify/websocket'
 import type { FastifyInstance } from 'fastify'
 import { verify } from 'jsonwebtoken'
@@ -22,62 +21,50 @@ function removeClient(userId: string, socket: any) {
 
 function extractAccessToken(req: any): string | null {
   const auth = req.headers?.authorization as string | undefined
-  if (auth && auth.startsWith('Bearer ')) {
-    return auth.slice(7)
-  }
-
+  if (auth && auth.startsWith('Bearer ')) return auth.slice(7)
   try {
     const url = new URL(req.url, env.FRONTEND_URL)
-    const qToken = url.searchParams.get('token')
-    if (qToken) return qToken
-  } catch {
-
-  }
-
+    const q = url.searchParams.get('token')
+    if (q) return q
+  } catch {}
   return null
 }
-
 
 export function pushNotification(recipientId: string, data: any) {
   const set = clients.get(recipientId)
   if (!set || set.size === 0) return
-
   const payload = JSON.stringify({ event: 'notification:new', data })
-
   for (const ws of set) {
     if (ws.readyState === ws.OPEN) {
       try {
         ws.send(payload)
-      } catch {
-
-      }
+      } catch {}
     }
   }
 }
 
-export default fp(async function notificationsWs(app: FastifyInstance) {
+export default async function notificationsWs(app: FastifyInstance) {
   await app.register(websocket)
 
   app.get('/ws/notifications', { websocket: true }, async (connection, req) => {
     try {
       const token = extractAccessToken(req)
       if (!token) {
-        connection.socket.close(4401, 'Unauthorized: token missing')
+        connection.socket.close(4401, 'Unauthorized')
         return
       }
 
       const decoded = verify(token, env.JWT_SECRET) as { sub?: string }
       const userId = decoded?.sub
       if (!userId) {
-        connection.socket.close(4401, 'Unauthorized: invalid token')
+        connection.socket.close(4401, 'Unauthorized')
         return
       }
 
       const usersRepository = new PrismaUsersRepository()
       const user = await usersRepository.findByPublicId(userId)
-
       if (!user) {
-        connection.socket.close(4401, 'Unauthorized: user not found')
+        connection.socket.close(4401, 'Unauthorized')
         return
       }
 
@@ -94,4 +81,4 @@ export default fp(async function notificationsWs(app: FastifyInstance) {
       } catch {}
     }
   })
-})
+}
