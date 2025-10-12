@@ -9,6 +9,7 @@ import path from 'path'
 import fastifyStatic from '@fastify/static'
 import fastifyMultipart from '@fastify/multipart'
 import { MulterError } from 'fastify-multer'
+import notificationsWs from './ws/notifications-ws'
 
 export const app = fastify()
 
@@ -39,6 +40,8 @@ app.register(
     prefix: '/files/',
   }
 )
+
+app.register(notificationsWs)
 
 app.register(appRoutes)
 
