@@ -1,56 +1,59 @@
 import type { FastifyInstance } from 'fastify'
-import { Server } from 'socket.io'
+import { Server as IOServer, type Socket } from 'socket.io'
 import { env } from '../env'
 
-let io: Server | null = null
+let ioRef: IOServer | null = null
 
-export function emitToUser(userId: string, event: string, payload: any) {
-  if (!io) return
-  const nsp = io.of('/notifications')
-  nsp.to(userId).emit(event, payload)
+function getTokenFromSocket(socket: Socket): string | null {
+  const token = socket.handshake.auth?.token as string | undefined
+  if (token) return token
+
+  const auth = socket.handshake.headers?.authorization as string | undefined
+  if (auth?.startsWith('Bearer ')) return auth.slice('Bearer '.length)
+
+  return null
 }
 
-export function initSocket(app: FastifyInstance) {
-  if (!app.server) return
-  if (io) return
-  io = new Server(app.server, {
+export function pushNotification(recipientId: string, data: any) {
+  if (!ioRef) return
+  ioRef.to(`user:${recipientId}`).emit('notification:new', data)
+}
+
+export default async function notificationsWs(app: FastifyInstance) {
+  const io = new IOServer(app.server, {
     cors: {
       origin: env.FRONTEND_URL,
-      methods: ['GET', 'POST'],
       credentials: true,
     },
+    path: '/socket.io',
   })
 
-  const notifications = io.of('/notifications')
+  ioRef = io
 
-  notifications.use(async (socket, next) => {
+  // Middleware de autenticação no handshake
+  io.use((socket, next) => {
     try {
-      const tokenFromAuth =
-        (socket.handshake.auth && (socket.handshake.auth as any).token) || null
-      const tokenFromHeader =
-        (socket.handshake.headers.authorization as string | undefined) || null
+      const token = getTokenFromSocket(socket)
+      if (!token) return next(new Error('Unauthorized'))
 
-      const token =
-        tokenFromAuth ||
-        (tokenFromHeader && tokenFromHeader.startsWith('Bearer ')
-          ? tokenFromHeader.split(' ')[1]
-          : null)
-
-      if (!token) throw new Error('no token')
-      const payload = await app.jwt.verify(token)
-
-      const userId = (payload as any)?.sub
-      if (!userId) throw new Error('no sub')
+      const decoded = app.jwt.verify<{ sub?: string }>(token)
+      const userId = decoded?.sub
+      if (!userId) return next(new Error('Unauthorized'))
 
       socket.data.userId = userId
-      socket.join(userId)
-      next()
-    } catch (err) {
-      next(new Error('Unauthorized'))
+      return next()
+    } catch {
+      return next(new Error('Unauthorized'))
     }
   })
 
-  notifications.on('connection', (socket) => {
-    socket.on('disconnect', () => {})
+  io.on('connection', (socket) => {
+    const userId = socket.data.userId as string
+    socket.join(`user:${userId}`)
+
+    socket.emit('connection:ready', { userId })
+
+    socket.on('disconnect', () => {
+    })
   })
 }
