@@ -9,6 +9,7 @@ import path from 'path'
 import fastifyStatic from '@fastify/static'
 import fastifyMultipart from '@fastify/multipart'
 import { MulterError } from 'fastify-multer'
+import notificationsWs from './ws/web-socket'
 
 export const app = fastify()
 
@@ -31,6 +32,8 @@ app.register(fastifyJwt, {
     expiresIn: '5m',
   },
 })
+
+app.register(notificationsWs)
 
 app.register(
   fastifyStatic as FastifyPluginCallback<{ root: string; prefix: string }>,
