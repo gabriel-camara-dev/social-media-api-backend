@@ -1,7 +1,6 @@
 import { RepostRepository } from '../../repositories/reposts-repository'
-import { CommentNotFoundError } from '../errors/comment-not-found-error'
-import { PostNotFoundError } from '../errors/post-not-found-error'
 import { ResourceNotFoundError } from '../errors/resource-not-found-error'
+import { NotificationService } from '../services/notification-service'
 
 interface ToggleRepostUseCaseRequest {
   userId: string
@@ -10,7 +9,10 @@ interface ToggleRepostUseCaseRequest {
 }
 
 export class ToggleRepostUseCase {
-  constructor(private readonly repostsRepository: RepostRepository) {}
+  constructor(
+    private readonly repostsRepository: RepostRepository,
+    private readonly notificationService?: NotificationService
+  ) {}
 
   async execute({
     userId,
@@ -29,18 +31,20 @@ export class ToggleRepostUseCase {
 
     if (existingRepost) {
       await this.repostsRepository.delete(existingRepost.id)
-    } else {
-      if (postId) {
-        await this.repostsRepository.create({
-          userId,
-          postId,
-        })
-      } else if (commentId) {
-        await this.repostsRepository.create({
-          userId,
-          commentId,
-        })
-      }
+      return
     }
+
+    if (postId) {
+      await this.repostsRepository.create({ userId, postId })
+    } else if (commentId) {
+      await this.repostsRepository.create({ userId, commentId })
+    }
+
+    await this.notificationService?.create({
+      type: 'REPOST',
+      actorId: userId,
+      postId,
+      commentId,
+    })
   }
 }

@@ -1,9 +1,10 @@
 import { PrismaRepostRepository } from '../../repositories/prisma/prisma-reposts-repository'
 import { ToggleRepostUseCase } from '../reposts/toggle-repost-use-case'
+import { makeNotificationService } from './make-notification-service'
 
 export function makeToggleRepostUseCase() {
   const repostsRepository = new PrismaRepostRepository()
-  const toggleRepostUseCase = new ToggleRepostUseCase(repostsRepository)
+  const notificationService = makeNotificationService()
 
-  return toggleRepostUseCase
+  return new ToggleRepostUseCase(repostsRepository, notificationService)
 }
