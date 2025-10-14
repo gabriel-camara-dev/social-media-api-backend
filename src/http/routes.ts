@@ -6,6 +6,7 @@ import { refreshToken } from './controllers/users/refresh-token'
 import { logout } from './controllers/users/logout'
 import { commentsRoutes } from './controllers/comments/comments-routes'
 import { repostsRoutes } from './controllers/reposts/repost-routes'
+import likesRoutes from './controllers/likes/like-routes'
 
 export async function appRoutes(app: FastifyInstance) {
   app.post('/sessions', authenticate)
@@ -16,4 +17,5 @@ export async function appRoutes(app: FastifyInstance) {
   app.register(postsRoutes, { prefix: '/posts' })
   app.register(commentsRoutes, { prefix: '/comments' })
   app.register(repostsRoutes, { prefix: '/reposts' })
+  app.register(likesRoutes, { prefix: '/likes' })
 }
