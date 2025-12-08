@@ -1,0 +1,93 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-400, 0],
+      "id": "cbfce702-2e99-451c-87d1-ec9816efc566",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/drive/v2/files/{{ $json.id }}/copy?convert=true&supportsAllDrives=true",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "options": {}
+      },
+      "id": "f03d882f-87b7-4fe1-9cfb-d4e2257129a3",
+      "name": "Convert Word to Google Docs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [40, 0],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "99K1t9okSZ8nPgGd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "\"word.docx\"",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1XXafh0DTJZMeCvqBS22Gw1lCYHf1hlJJ",
+            "mode": "list",
+            "cachedResultName": "n8n",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1XXafh0DTJZMeCvqBS22Gw1lCYHf1hlJJ"
+          }
+        },
+        "options": {}
+      },
+      "id": "56701100-edfc-402c-a12d-b8b5638d3c60",
+      "name": "Get the Doc file ID",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [-180, 0],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "99K1t9okSZ8nPgGd",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": { "operation": "get", "documentURL": "={{ $json.id }}" },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [260, 0],
+      "id": "67ab7f69-4687-4453-b2da-d4f980d83d9d",
+      "name": "Read Google Docs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "FXIwdYpuWFf3MWb1",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [[{ "node": "Get the Doc file ID", "type": "main", "index": 0 }]]
+    },
+    "Convert Word to Google Docs": {
+      "main": [[{ "node": "Read Google Docs", "type": "main", "index": 0 }]]
+    },
+    "Get the Doc file ID": {
+      "main": [
+        [{ "node": "Convert Word to Google Docs", "type": "main", "index": 0 }]
+      ]
+    },
+    "Read Google Docs": { "main": [[]] }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4ef28248bc32ed819cb978bf8242c20447a59c70250ea6047e5785128d5b0743"
+  }
+}
