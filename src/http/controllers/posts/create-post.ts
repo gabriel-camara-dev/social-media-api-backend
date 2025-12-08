@@ -13,9 +13,9 @@ export async function createPost(request: FastifyRequest, reply: FastifyReply) {
   const { content } = createPostBodySchema.parse(request.body)
 
   const file = (request as any).file
-  let image = undefined
+  let image: string | undefined = undefined
 
-  if (file) {
+  if (file?.filename) {
     image = await UploadService.compressImage(file.filename)
   }
 
